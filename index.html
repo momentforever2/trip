@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>家族旅行</title>
+<meta name="theme-color" content="#EEF2EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11171C" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="家族旅行">
+<script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: phone-first app shell — sticky header, one scrolling column (max 640px), fixed bottom tab bar. */
+:root{
+  --bg:#EEF2EF; --surface:#FFFFFF; --surface-2:#E3E9E5; --ink:#18242E; --muted:#56656F; --line:#CFD8D2;
+  --accent:#264A7A; --accent-ink:#FFFFFF; --accent-soft:#DAE3F0;
+  --pos:#24724A; --neg:#B0432B; --warn:#93650B;
+  --c1:#264A7A; --c2:#B0432B; --c3:#55702A; --c4:#86508A; --c5:#2F7A80; --c6:#A8780F; --c7:#6E7780;
+  --f-display:"Zen Maru Gothic","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --r:14px; --shadow:0 1px 2px rgba(20,40,60,.06),0 4px 14px rgba(20,40,60,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11171C; --surface:#1A232B; --surface-2:#24303A; --ink:#E4EAEE; --muted:#97A5AF; --line:#2E3B46;
+  --accent:#8FB1E3; --accent-ink:#0E1A29; --accent-soft:#223449;
+  --pos:#6CC593; --neg:#EE8D74; --warn:#E3B457;
+  --c1:#8FB1E3; --c2:#EE8D74; --c3:#A6C871; --c4:#D19BD5; --c5:#6FC3C9; --c6:#E3B457; --c7:#A3ADB6;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11171C; --surface:#1A232B; --surface-2:#24303A; --ink:#E4EAEE; --muted:#97A5AF; --line:#2E3B46;
+  --accent:#8FB1E3; --accent-ink:#0E1A29; --accent-soft:#223449;
+  --pos:#6CC593; --neg:#EE8D74; --warn:#E3B457;
+  --c1:#8FB1E3; --c2:#EE8D74; --c3:#A6C871; --c4:#D19BD5; --c5:#6FC3C9; --c6:#E3B457; --c7:#A3ADB6;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-tap-highlight-color:transparent}
+body.lock{overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.3}
+.num{font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:12px;padding-block:10px}
+.brand{flex:1;min-width:0}
+.brand h1{font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{color:var(--muted);font-size:12px}
+.pill{text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:700;white-space:nowrap;border:0;cursor:pointer}
+.pill.neg{background:color-mix(in srgb,var(--neg) 16%,transparent);color:var(--neg)}
+
+main{padding-block:14px 110px}
+main .wrap{display:flex;flex-direction:column;gap:14px}
+
+/* bottom nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;text-decoration:none;color:var(--muted);font-size:11.5px;font-weight:500}
+nav.tabs a .ic{width:22px;height:22px}
+nav.tabs a[aria-current="page"]{color:var(--accent)}
+nav.tabs a:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:8px}
+
+/* generic */
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:14px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sec-h h2{font-size:17px}
+.sec-h h3{font-size:15px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:500;cursor:pointer;min-height:38px}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible,.chip:focus-visible,.icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--accent);padding-inline:6px}
+.btn.danger{color:var(--neg);border-color:color-mix(in srgb,var(--neg) 40%,transparent);background:transparent}
+.btn.danger.armed{background:var(--neg);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{flex:1 1 auto}
+.icon-btn{border:0;background:transparent;padding:6px;border-radius:8px;color:var(--muted);cursor:pointer;display:inline-flex}
+.icon-btn:hover{color:var(--accent);background:var(--surface-2)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.day{display:flex;flex-direction:column;align-items:center;line-height:1.2;padding:7px 12px;border-radius:12px}
+.chip.day b{font-family:var(--f-display);font-size:14px}
+.chip.day span{font-size:11.5px;opacity:.8}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:6px;color:var(--tc,var(--c7));background:color-mix(in srgb,var(--tc,var(--c7)) 14%,transparent);white-space:nowrap}
+.empty{text-align:center;padding:28px 16px;color:var(--muted)}
+.empty h3{color:var(--ink);margin-bottom:6px}
+.banner{border-radius:12px;padding:10px 12px;font-size:13.5px;background:color-mix(in srgb,var(--warn) 14%,var(--surface));color:var(--ink);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent)}
+.pre{white-space:pre-wrap;word-break:break-word}
+
+/* itinerary */
+.day-head{display:flex;gap:10px;align-items:flex-start}
+.day-head .grow{flex:1;min-width:0}
+.day-head h2{font-size:20px}
+.meta-line{display:flex;gap:6px 14px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-top:4px}
+.plan-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.plan-tab{flex:none;border:0;background:transparent;padding:9px 12px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;display:inline-flex;gap:4px;align-items:center}
+.plan-tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+.plan-tab .star{color:var(--warn)}
+.plan-bar{display:flex;gap:4px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding-top:8px}
+.chosen-note{font-size:12.5px;color:var(--warn);font-weight:700;display:inline-flex;gap:4px;align-items:center}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.tl li:first-child{border-top:0}
+.tl.notime li{grid-template-columns:0 1fr auto;column-gap:0}.tl.notime .body{padding-right:10px}
+.tl .t{font-weight:700;font-size:14px;color:var(--accent);padding-top:1px}
+.tl .body{min-width:0}
+.tl .title{font-weight:700;font-size:15.5px;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.tl .note{font-size:13.5px;color:var(--muted);margin-top:2px}
+.tl .links{display:flex;gap:12px;margin-top:4px;font-size:13px}
+.tl .links a{display:inline-flex;gap:3px;align-items:center;text-decoration:none;font-weight:500}
+
+/* money */
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum-grid div{min-width:0}
+.sum-grid .lbl{font-size:12px;color:var(--muted)}
+.sum-grid .v{font-family:var(--f-display);font-size:20px;font-weight:700;line-height:1.2;overflow-wrap:anywhere}
+.sum-grid .sub{font-size:11.5px;color:var(--muted)}
+.big{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1.1}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--surface-2);margin-top:10px}
+.bar span{display:block;height:100%;background:var(--sc)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12.5px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--sc);margin-right:5px}
+.list{display:flex;flex-direction:column}
+.row{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer;background:transparent;border-left:0;border-right:0;border-bottom:0;text-align:left;width:100%}
+.row:first-child{border-top:0}
+.row .grow{flex:1;min-width:0}
+.row .t1{font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.row .t2{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .amt{text-align:right;font-weight:700;white-space:nowrap}
+.row .amt small{display:block;font-weight:400;color:var(--muted);font-size:11.5px}
+.detail{background:var(--surface-2);border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:13.5px}
+.detail table{width:100%;border-collapse:collapse}
+.detail td{padding:3px 0;vertical-align:top}
+.detail td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
+.day-group h3{font-size:14px;display:flex;justify-content:space-between;color:var(--muted);font-family:var(--f-body);font-weight:700;padding:6px 0 2px}
+
+.bal{display:grid;grid-template-columns:64px 1fr 96px;gap:10px;align-items:center;padding:6px 0}
+.bal .name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bal .track{position:relative;height:10px;background:var(--surface-2);border-radius:5px}
+.bal .track::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line)}
+.bal .fill{position:absolute;top:0;bottom:0;border-radius:5px}
+.bal .v{text-align:right;font-weight:700;font-size:14px;white-space:nowrap}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+.xfer{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.xfer:first-child{border-top:0}
+.xfer .who{flex:1;min-width:0;font-weight:500}
+.xfer .who .arrow{color:var(--muted);margin:0 4px}
+.xfer .v{font-weight:700;white-space:nowrap}
+.people{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.people span{font-size:11.5px;background:var(--surface-2);border-radius:5px;padding:0 6px}
+.seg{display:flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;border-radius:8px;padding:7px 8px;font-size:13.5px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:var(--shadow)}
+
+/* spots */
+.spot{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.spot:first-child{border-top:0}
+.spot .grow{flex:1;min-width:0}
+.spot .nm{font-weight:700;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+
+/* modal */
+#modal{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;inset:0;background:rgba(10,18,26,.45)}
+.sheet{position:relative;background:var(--bg);width:100%;max-width:640px;max-height:92%;display:flex;flex-direction:column;border-radius:18px 18px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheet-h{display:flex;align-items:center;gap:8px;padding:14px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
+.sheet-h h2{flex:1;font-size:18px}
+.sheet-b{overflow-y:auto;padding:4px max(16px,env(safe-area-inset-right,0px)) 18px max(16px,env(safe-area-inset-left,0px))}
+@media (min-width:700px){#modal{align-items:center}.sheet{border-radius:18px;max-height:86%}}
+.form{display:flex;flex-direction:column;gap:12px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f>span{font-size:12.5px;color:var(--muted);font-weight:500}
+.f input,.f select,.f textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 10px;font-size:16px;min-height:42px}
+.f textarea{min-height:70px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chks{display:flex;flex-wrap:wrap;gap:6px}
+.chks label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 8px;font-size:14px;cursor:pointer}
+.chks label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700}
+.chks input{accent-color:var(--accent);margin:0}
+.irow{display:grid;grid-template-columns:1fr 1fr 84px 30px;gap:6px;margin-bottom:6px}
+.irow input{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 8px;font-size:14px;min-width:0}
+details summary{cursor:pointer;font-size:13.5px;font-weight:500;color:var(--accent);padding:4px 0}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.hint.err{color:var(--neg)}
+.actions{display:flex;gap:8px;justify-content:space-between;align-items:center;padding-top:4px}
+.actions .btn.primary{flex:1}
+.preview-img{max-height:220px;border-radius:10px;display:block;margin:0 auto}
+.mrow{display:grid;grid-template-columns:1fr auto 34px;gap:8px;align-items:center}
+.mrow input[type=text]{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:16px;min-width:0}
+.mrow label{font-size:13px;display:flex;gap:4px;align-items:center;white-space:nowrap}
+.pick{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.pick:first-child{border-top:0}
+.drop{border:1.5px dashed var(--line);border-radius:14px;padding:22px 14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;background:var(--surface)}
+.drop .ic{width:30px;height:30px;color:var(--accent)}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;max-width:calc(100% - 32px)}
+@media (max-width:420px){.sum-grid .v{font-size:17px}.irow{grid-template-columns:1fr 70px 30px}.irow .io{grid-column:1/-1;order:5}}
+html{-webkit-text-size-adjust:100%;color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;overscroll-behavior-y:none}
+[hidden]{display:none!important}
+img{max-width:100%}
+.sync{font-size:11.5px;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+.sync.warn{color:var(--warn);font-weight:700}
+.install{display:flex;gap:10px;align-items:flex-start}
+.install .grow{flex:1;min-width:0}
+.install img{width:44px;height:44px;border-radius:10px;flex:none}
+.who{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+</style>
+</head><body>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><h1 id="tripName">家族日本行</h1><small id="tripDates" class="num"></small> <span id="sync" class="sync"></span></div>
+  <a class="pill num" id="poolPill" href="#pool" hidden></a>
+</div></header>
+<main><div class="wrap" id="view"><div class="empty"><span class="spin"></span> 載入中…</div></div></main>
+<nav class="tabs" aria-label="主選單"><div class="wrap" id="nav"></div></nav>
+<div id="modal" hidden></div>
+<div id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+const I = {
+  plus:'<svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  cam:'<svg class="ic" viewBox="0 0 24 24"><path d="M3.5 8h3.2l2-3h6.6l2 3h3.2v11h-17z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  edit:'<svg class="ic" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+  pin:'<svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.3-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.7 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/></svg>',
+  x:'<svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  cal:'<svg class="ic" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>',
+  wallet:'<svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M5.5 7l9.5-3.2V7M15.5 13.3h2"/></svg>',
+  split:'<svg class="ic" viewBox="0 0 24 24"><path d="M7 4v14M4 15l3 3 3-3M17 20V6M14 9l3-3 3 3"/></svg>',
+  gear:'<svg class="ic" viewBox="0 0 24 24"><path d="M4 7h9M18 7h2M4 17h4M13 17h7"/><circle cx="15.5" cy="7" r="2.3"/><circle cx="10.5" cy="17" r="2.3"/></svg>',
+  ai:'<svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1-5.1-1.9 5.1-1.9z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg>',
+  star:'<svg class="ic" viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;stroke:none"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg>',
+  link:'<svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>'
+};
+const TABS = [['trip','行程',I.cal],['pool','公費',I.wallet],['split','分帳',I.split],['spots','口袋名單',I.pin],['setup','設定',I.gear]];
+const TYPES = {sight:['景點','--c1'],food:['美食','--c2'],move:['交通','--c3'],shop:['購物','--c4'],stay:['住宿','--c5'],other:['其他','--c7']};
+const CATS = ['餐飲','交通','門票','購物','藥妝','住宿','其他'];
+const CATC = {'餐飲':'--c2','交通':'--c3','門票':'--c1','購物':'--c4','藥妝':'--c6','住宿':'--c5','其他':'--c7'};
+const WD = '日一二三四五六';
+const DEFAULT_META = {name:'家族日本行',startDate:'',endDate:'',rate:0.21,members:[
+  {id:'me',name:'我',child:false},{id:'hubby',name:'老公',child:false},{id:'sis',name:'小姑',child:false},
+  {id:'mom',name:'婆婆',child:false},{id:'kid',name:'女兒',child:true}]};
+
+const S = {status:'loading', meta:null, metaLoaded:false, days:[], pool:[], topups:[], splits:[], spots:[],
+  tab:'trip', dayId:null, planSel:{}, poolDate:'all', open:new Set(), spotCat:'all', splitView:'min', splitPerson:'all',
+  canWrite:true, ai:false, api:'', meId:null, offline:false};
+
+/* ---------- helpers ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rid = () => Math.random().toString(36).slice(2,10);
+const members = () => S.meta?.members || [];
+const adults = () => members().filter(m => !m.child);
+const mName = id => members().find(m => m.id === id)?.name || '（已移除）';
+const rate = () => Number(S.meta?.rate) > 0 ? Number(S.meta.rate) : 0.21;
+const toJPY = (a,c) => c === 'TWD' ? a / rate() : a;
+const toTWD = (a,c) => c === 'JPY' ? a * rate() : a;
+const nf = n => Math.round(n).toLocaleString('zh-TW');
+const fJ = n => (n < 0 ? '−' : '') + '¥' + nf(Math.abs(n));
+const fT = n => (n < 0 ? '−' : '') + 'NT$' + nf(Math.abs(n));
+const fmt = (a,c) => c === 'TWD' ? fT(a) : fJ(a);
+const other = (a,c) => c === 'TWD' ? '≈ ' + fJ(toJPY(a,c)) : '≈ ' + fT(toTWD(a,c));
+const pad = n => String(n).padStart(2,'0');
+const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => isoOf(new Date());
+const dLabel = iso => { if (!iso) return '未定日期'; const d = new Date(iso+'T00:00'); if (isNaN(d)) return iso; return `${d.getMonth()+1}/${d.getDate()}（${WD[d.getDay()]}）`; };
+const fld = (label, inner) => `<label class="f"><span>${label}</span>${inner}</label>`;
+const sortDays = () => [...S.days].sort((a,b) => (a.date||'9').localeCompare(b.date||'9') || (a.createdAt||0)-(b.createdAt||0));
+function defaultDate(){
+  const t = today(), s = S.meta?.startDate, e = S.meta?.endDate;
+  if (s && e && t >= s && t <= e) return t;
+  if (S.tab === 'pool' && S.poolDate !== 'all') return S.poolDate;
+  const day = S.days.find(d => d.id === S.dayId);
+  return day?.date || s || t;
+}
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 2200); }
+/* ---------- sync with Google Sheet backend ---------- */
+const LS = {get(k,d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }};
+let server = LS.get('trip-server', null);
+let Q = LS.get('trip-queue', []);
+let flushing = false, syncing = false;
+const COLS = ['days','pool','topups','splits','spots'];
+function applyOp(st, op){
+  const arr = st[op.col] = st[op.col] || [];
+  const i = arr.findIndex(x => x.id === op.id);
+  if (op.t === 'del'){ if (i >= 0) arr.splice(i, 1); return; }
+  const doc = {...op.data, id:op.id};
+  if (i >= 0) arr[i] = doc; else arr.push(doc);
+}
+function recompute(){
+  const st = JSON.parse(JSON.stringify(server || {}));
+  Q.forEach(op => applyOp(st, op));
+  S.meta = (st.trip || []).find(d => d.id === 'meta') || null;
+  S.metaLoaded = !!server || Q.length > 0;
+  COLS.forEach(c => S[c] = st[c] || []);
+  if (S.status === 'loading' && S.metaLoaded) S.status = 'ready';
+  render();
+}
+async function api(body, signal){
+  const r = await fetch(S.api, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(body), redirect:'follow', signal});
+  if (!r.ok) throw {code:'network'};
+  const j = await r.json();
+  if (!j.ok) throw {code: j.error || 'server'};
+  return j;
+}
+async function flush(){
+  if (flushing || !S.api) return; flushing = true;
+  try {
+    while (Q.length){
+      const op = Q[0];
+      try { await api(op.t === 'del' ? {action:'delete', col:op.col, id:op.id} : {action:'save', col:op.col, id:op.id, data:op.data}); }
+      catch(e){
+        if (e.code === 'network' || e instanceof TypeError || !e.code){ S.offline = true; renderChrome(); return; }
+        toast('有一筆資料存不進去，已略過'); // validation error from server
+      }
+      Q.shift(); LS.set('trip-queue', Q);
+    }
+    S.offline = false;
+  } finally { flushing = false; }
+}
+async function sync(){
+  if (!S.api || syncing) return; syncing = true;
+  try {
+    await flush();
+    if (Q.length) return;
+    const r = await fetch(S.api + '?action=all&t=' + Date.now(), {redirect:'follow'});
+    const j = await r.json();
+    if (!j.ok) throw j;
+    if (Q.length) return; // new local edits arrived while loading; next sync will pick up
+    server = j.data; S.ai = !!j.ai; S.offline = false;
+    LS.set('trip-server', server); LS.set('trip-ai', S.ai);
+    recompute();
+  } catch(e){ S.offline = true; if (S.status === 'loading'){ S.status = server ? 'ready' : 'error'; } renderChrome(); if (S.status === 'error') render(); }
+  finally { syncing = false; }
+}
+function enqueue(op){ Q.push(op); LS.set('trip-queue', Q); recompute(); flush().then(() => { renderChrome(); }); return true; }
+async function put(col, id, data){ return enqueue({t:'save', col, id, data:JSON.parse(JSON.stringify(data))}); }
+async function del(col, id){ return enqueue({t:'del', col, id}); }
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const cur = d => S.days.find(x => x.id === d.id) || d;
+const clone = o => JSON.parse(JSON.stringify(o));
+function sampleErr(e){
+  const c = String(e?.code || '');
+  if (c === 'no_key') return '還沒設定 Gemini 金鑰，請到 Apps Script 的「指令碼屬性」加入 GEMINI_API_KEY。';
+  if (c === 'ai_busy') return 'Gemini 目前太忙或已達免費額度，稍等一分鐘再試。';
+  if (c === 'ai_bad_json' || c === 'ai_empty') return '辨識結果格式不對，請再試一次或換一張清楚的照片。';
+  if (c === 'network' || e instanceof TypeError) return '網路連不上，請確認有網路後再試。';
+  return '辨識失敗，請再試一次。' + (c ? '（' + c.slice(0,80) + '）' : '');
+}
+/* ---------- calculations ---------- */
+function poolCalc(){
+  const income = S.topups.reduce((s,t) => s + toJPY((Number(t.perPerson)||0) * (t.members?.length||0), t.currency), 0);
+  const spent = S.pool.reduce((s,p) => s + toJPY(Number(p.amount)||0, p.currency), 0);
+  return {income, spent, remain: income - spent};
+}
+function shareMap(e){ // TWD per participant
+  const amt = toTWD(Number(e.amount)||0, e.currency), parts = e.participants || [], out = {};
+  if (!parts.length) return out;
+  if (e.mode === 'custom') parts.forEach(id => out[id] = toTWD(Number(e.shares?.[id])||0, e.currency));
+  else parts.forEach(id => out[id] = amt / parts.length);
+  return out;
+}
+function splitCalc(){
+  const ms = members(), bal = {}, debt = {};
+  ms.forEach(a => { bal[a.id] = 0; debt[a.id] = {}; ms.forEach(b => debt[a.id][b.id] = 0); });
+  for (const e of S.splits){
+    const amt = toTWD(Number(e.amount)||0, e.currency);
+    if (e.kind === 'transfer'){
+      if (!(e.from in bal) || !(e.to in bal)) continue;
+      bal[e.from] += amt; bal[e.to] -= amt; debt[e.to][e.from] += amt; continue;
+    }
+    if (!(e.payer in bal)) continue;
+    bal[e.payer] += amt;
+    const sh = shareMap(e);
+    for (const id in sh){ if (!(id in bal)) continue; bal[id] -= sh[id]; if (id !== e.payer) debt[id][e.payer] += sh[id]; }
+  }
+  const pairs = [];
+  for (let i=0;i<ms.length;i++) for (let j=i+1;j<ms.length;j++){
+    const a = ms[i].id, b = ms[j].id, net = debt[a][b] - debt[b][a];
+    if (Math.abs(net) >= 1) pairs.push(net > 0 ? {from:a,to:b,amt:net} : {from:b,to:a,amt:-net});
+  }
+  const cr = [], dr = [];
+  ms.forEach(m => { const v = bal[m.id]; if (v > 0.5) cr.push({id:m.id,v}); else if (v < -0.5) dr.push({id:m.id,v:-v}); });
+  cr.sort((a,b)=>b.v-a.v); dr.sort((a,b)=>b.v-a.v);
+  const xfers = []; let i=0, j=0;
+  while (i < dr.length && j < cr.length){
+    const x = Math.min(dr[i].v, cr[j].v);
+    if (x >= 1) xfers.push({from:dr[i].id,to:cr[j].id,amt:x});
+    dr[i].v -= x; cr[j].v -= x;
+    if (dr[i].v < 0.5) i++; if (cr[j].v < 0.5) j++;
+  }
+  return {bal, pairs, xfers};
+}
+
+/* ---------- render ---------- */
+function renderChrome(){
+  const m = S.meta || DEFAULT_META;
+  $('#tripName').textContent = m.name || '家族日本行';
+  const ds = m.startDate ? `${dLabel(m.startDate)} – ${dLabel(m.endDate)}` : '日期未定';
+  $('#tripDates').textContent = `${ds} · ${members().length || 5} 人`;
+  const pill = $('#poolPill');
+  if (S.topups.length || S.pool.length){
+    const {remain} = poolCalc();
+    pill.hidden = false; pill.className = 'pill num' + (remain < 0 ? ' neg' : '');
+    pill.innerHTML = `${I.wallet}<span>公費 ${fJ(remain)}</span>`;
+  } else pill.hidden = true;
+  const sy = $('#sync');
+  if (Q.length){ sy.className = 'sync warn'; sy.textContent = (S.offline ? '離線 · ' : '上傳中 · ') + Q.length + ' 筆待同步'; }
+  else if (S.offline && S.status !== 'loading'){ sy.className = 'sync warn'; sy.textContent = '離線，顯示上次資料'; }
+  else { sy.className = 'sync'; sy.textContent = ''; }
+  $('#nav').innerHTML = TABS.map(([k,l,ic]) => `<a href="#${k}" ${S.tab===k?'aria-current="page"':''}>${ic}<span>${l}</span></a>`).join('');
+}
+function render(){
+  renderChrome();
+  const v = $('#view');
+  let h = '';
+  if (S.status === 'loading') h = `<div class="empty"><span class="spin"></span> 連線中…</div>`;
+  else if (S.status === 'noapi') h = `<div class="card empty"><h3>還沒連上資料庫</h3><p>請在 config.js 填入 Apps Script 網頁應用程式的網址。</p></div>`;
+  else if (S.status === 'error') h = `<div class="card empty"><h3>連不上資料庫</h3><p>請確認網路，或稍後再開一次。</p><button class="btn" data-act="resync">重新連線</button></div>`;
+  else if (S.metaLoaded && !S.meta) h = renderCreate();
+  else {
+    if (S.tab === 'trip') h += installCard();
+    h += ({trip:renderTrip,pool:renderPool,split:renderSplit,spots:renderSpots,setup:renderSetup}[S.tab])();
+  }
+  v.innerHTML = h;
+}
+function renderCreate(){
+  return `<div class="card empty"><h3>開始規劃這趟旅程</h3><p>建立後，預設成員是：我、老公、小姑、婆婆、女兒（小孩預設不分攤），之後都可以在「設定」修改。</p>
+  ${S.canWrite ? `<button class="btn primary" data-act="meta-create">建立旅程</button>` : ''}</div>`;
+}
+
+/* trip */
+function renderTrip(){
+  const days = sortDays();
+  if (!days.length){
+    const m = S.meta;
+    return `<div class="card empty"><h3>還沒有任何一天的行程</h3>
+      <p>${m?.startDate && m?.endDate ? '可以依照旅程日期一次建立每一天，也可以手動新增。' : '先到「設定」填入出發與回程日期，就能一次建立每一天。'}</p>
+      ${S.canWrite ? `<div class="btn-row" style="justify-content:center">${m?.startDate && m?.endDate ? `<button class="btn primary" data-act="day-auto">依日期建立每一天</button>` : ''}<button class="btn" data-act="day-add">${I.plus}新增一天</button></div>` : ''}</div>`;
+  }
+  if (!days.find(d => d.id === S.dayId)){ const t = days.find(d => d.date === today()); S.dayId = (t || days[0]).id; }
+  const day = days.find(d => d.id === S.dayId), idx = days.indexOf(day);
+  const plans = day.plans || [];
+  let pid = S.planSel[day.id];
+  if (!plans.find(p => p.id === pid)) pid = (plans.find(p => p.id === day.chosen) || plans[0])?.id;
+  const plan = plans.find(p => p.id === pid);
+  const items = plan ? [...(plan.items||[])].map((it,i)=>({...it,_i:i})).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')) : [];
+  const daySpent = S.pool.filter(p => p.date === day.date).reduce((s,p)=>s+toJPY(Number(p.amount)||0,p.currency),0);
+  return `
+  <div class="chips" role="tablist" aria-label="選擇日期">
+    ${days.map((d,i) => `<button class="chip day" data-act="day-sel" data-id="${d.id}" aria-pressed="${d.id===day.id}"><b>Day ${i+1}</b><span class="num">${esc(d.date ? dLabel(d.date) : '未定')}</span></button>`).join('')}
+    ${S.canWrite ? `<button class="chip" data-act="day-add" aria-label="新增一天">${I.plus}</button>` : ''}
+  </div>
+  <section class="card">
+    <div class="day-head"><div class="grow" style="min-width:0">
+      <span class="small muted num">Day ${idx+1} · ${esc(dLabel(day.date))}</span>
+      <h2>${esc(day.title || '今日行程')}</h2>
+      <div class="meta-line">${day.hotel ? `<span>住宿：${esc(day.hotel)}</span>` : ''}${daySpent ? `<a href="#pool" data-act="pool-date" data-d="${esc(day.date)}">今日公費 ${fJ(daySpent)}</a>` : ''}</div>
+      ${day.note ? `<p class="pre small" style="margin:6px 0 0">${esc(day.note)}</p>` : ''}
+    </div>${S.canWrite ? `<button class="icon-btn" data-act="day-edit" aria-label="編輯這天">${I.edit}</button>` : ''}</div>
+  </section>
+  <section class="card">
+    <div class="plan-tabs" role="tablist">
+      ${plans.map(p => `<button class="plan-tab" role="tab" data-act="plan-sel" data-id="${p.id}" aria-selected="${p.id===pid}">${p.id===day.chosen && plans.length>1 ? `<span class="star">${I.star}</span>` : ''}${esc(p.name)}</button>`).join('')}
+      ${S.canWrite ? `<button class="plan-tab" data-act="plan-add">${I.plus}方案</button>` : ''}
+    </div>
+    ${plan ? `
+    <div class="plan-bar">
+      ${plans.length > 1 ? (plan.id === day.chosen ? `<span class="chosen-note">${I.star}已決定採用這個方案</span>` : (S.canWrite ? `<button class="btn ghost" data-act="plan-choose">${I.star}採用這個方案</button>` : '<span></span>')) : `<span class="small muted">想比較別的走法？按「＋方案」新增方案二</span>`}
+      ${S.canWrite ? `<span><button class="btn ghost" data-act="plan-edit">${I.edit}方案</button></span>` : ''}
+    </div>
+    ${items.length ? `<ul class="tl${items.some(x => x.time) ? '' : ' notime'}">${items.map(it => {
+      const [tl, tc] = TYPES[it.type] || TYPES.other;
+      const map = it.link || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(it.title + (it.area ? ' ' + it.area : ''))}`;
+      return `<li><div class="t num">${esc(it.time || '')}</div><div class="body">
+        <div class="title"><span class="tag" style="--tc:var(${tc})">${tl}</span>${esc(it.title)}</div>
+        ${it.note ? `<div class="note pre">${esc(it.note)}</div>` : ''}
+        <div class="links"><a href="${esc(map)}" target="_blank" rel="noopener">${I.pin}地圖</a>${it.link2 ? `<a href="${esc(it.link2)}" target="_blank" rel="noopener">${I.link}連結</a>` : ''}</div>
+      </div>${S.canWrite ? `<button class="icon-btn" data-act="item-edit" data-i="${it._i}" aria-label="編輯">${I.edit}</button>` : '<span></span>'}</li>`; }).join('')}</ul>`
+    : `<div class="empty small">這個方案還沒有安排。可以手動新增，或把筆記貼上讓 Claude 整理成時間表。</div>`}
+    ${S.canWrite ? `<div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="item-add">${I.plus}新增行程</button><button class="btn" data-act="import-plan" ${S.ai ? '' : 'hidden'}>${I.ai}貼文字整理</button></div>` : ''}
+    ` : `<div class="empty small">尚無方案</div>`}
+  </section>`;
+}
+
+/* pool */
+function renderPool(){
+  const {income, spent, remain} = poolCalc();
+  const nA = adults().length || 1;
+  const dates = [...new Set(S.pool.map(p => p.date || ''))].sort();
+  const list = S.poolDate === 'all' ? S.pool : S.pool.filter(p => (p.date||'') === S.poolDate);
+  const byCat = {}; list.forEach(p => { const c = CATS.includes(p.category) ? p.category : '其他'; byCat[c] = (byCat[c]||0) + toJPY(Number(p.amount)||0, p.currency); });
+  const listTotal = Object.values(byCat).reduce((a,b)=>a+b,0);
+  const groups = {}; list.forEach(p => (groups[p.date||''] ||= []).push(p));
+  const gkeys = Object.keys(groups).sort().reverse();
+  return `
+  <section class="card">
+    <div class="sec-h"><span class="small muted">公費剩餘</span><span class="small muted num">匯率 1 円 = ${rate()} 台幣</span></div>
+    <div class="big num ${remain<0?'neg':''}">${fJ(remain)}</div>
+    <div class="small muted num">${fT(toTWD(remain,'JPY'))}${income ? ` · 每位大人${remain>=0?'可退':'需補'} ${fJ(Math.abs(remain)/nA)}` : ''}</div>
+    <div class="sum-grid num" style="margin-top:12px">
+      <div><div class="lbl">已收公費</div><div class="v">${fJ(income)}</div><div class="sub">${S.topups.length} 次</div></div>
+      <div><div class="lbl">已花費</div><div class="v">${fJ(spent)}</div><div class="sub">${S.pool.length} 筆</div></div>
+      <div><div class="lbl">使用率</div><div class="v">${income ? Math.round(spent/income*100) + '%' : '—'}</div><div class="sub">${nA} 位大人分攤</div></div>
+    </div>
+    ${S.canWrite ? `<div class="btn-row" style="margin-top:14px">
+      <button class="btn primary" data-act="receipt" data-dest="pool" ${S.ai ? '' : 'hidden'}>${I.cam}拍收據</button>
+      <button class="btn ${S.ai ? '' : 'primary'}" data-act="entry-add" data-dest="pool">${I.plus}手動記帳</button>
+      <button class="btn" data-act="topup-add">${I.wallet}收公費</button></div>` : ''}
+  </section>
+  ${S.pool.length ? `
+  <div class="chips">
+    <button class="chip" data-act="pool-date" data-d="all" aria-pressed="${S.poolDate==='all'}">全部</button>
+    ${dates.map(d => `<button class="chip num" data-act="pool-date" data-d="${esc(d)}" aria-pressed="${S.poolDate===d}">${esc(dLabel(d))}</button>`).join('')}
+  </div>
+  <section class="card">
+    <div class="sec-h"><h3>${S.poolDate==='all' ? '花費分佈' : esc(dLabel(S.poolDate)) + ' 花費'}</h3><b class="num">${fJ(listTotal)}</b></div>
+    <div class="bar" role="img" aria-label="各分類花費比例">${CATS.filter(c=>byCat[c]).map(c => `<span style="--sc:var(${CATC[c]});width:${byCat[c]/listTotal*100}%"></span>`).join('')}</div>
+    <div class="legend num">${CATS.filter(c=>byCat[c]).sort((a,b)=>byCat[b]-byCat[a]).map(c => `<span style="--sc:var(${CATC[c]})"><i></i>${c} ${fJ(byCat[c])}</span>`).join('')}</div>
+  </section>
+  <section class="card list">
+    ${gkeys.map(k => {
+      const g = groups[k].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      const tot = g.reduce((s,p)=>s+toJPY(Number(p.amount)||0,p.currency),0);
+      return `<div class="day-group"><h3 class="num"><span>${esc(dLabel(k))}</span><span>${fJ(tot)}</span></h3>
+      ${g.map(p => poolRow(p)).join('')}</div>`; }).join('')}
+  </section>` : `<div class="card empty"><h3>還沒有公費支出</h3><p>先按「收公費」記下大家交了多少，之後每筆花費用拍收據或手動記帳加入，這裡會依日期整理。</p></div>`}
+  ${S.topups.length ? `<section class="card"><div class="sec-h"><h3>公費收入紀錄</h3></div><div class="list">
+    ${[...S.topups].sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(t => `<button class="row" data-act="topup-edit" data-id="${t.id}" ${S.canWrite?'':'disabled'}>
+      <div class="grow"><div class="t1">${esc(t.note || '收公費')}</div><div class="t2 num">${esc(dLabel(t.date))} · 每人 ${fmt(Number(t.perPerson)||0,t.currency)} × ${(t.members||[]).length} 人（${(t.members||[]).map(mName).join('、')}）</div></div>
+      <div class="amt num pos">+${fmt((Number(t.perPerson)||0)*(t.members||[]).length,t.currency)}</div></button>`).join('')}
+  </div></section>` : ''}`;
+}
+function poolRow(p){
+  const open = S.open.has(p.id);
+  const [cl] = [p.category || '其他'];
+  return `<button class="row" data-act="toggle" data-id="${p.id}" aria-expanded="${open}">
+    <span class="tag" style="--tc:var(${CATC[cl]||'--c7'})">${esc(cl)}</span>
+    <div class="grow"><div class="t1">${esc(p.title)}</div>${p.orig ? `<div class="t2">${esc(p.orig)}</div>` : ''}</div>
+    <div class="amt num">${fmt(Number(p.amount)||0,p.currency)}<small>${other(Number(p.amount)||0,p.currency)}</small></div></button>
+  ${open ? `<div class="detail">
+    ${(p.items||[]).length ? `<table class="num">${p.items.map(it => `<tr><td>${esc(it.zh||it.orig)}${it.orig && it.zh ? `<div class="muted small">${esc(it.orig)}</div>` : ''}</td><td>${it.price!=='' && it.price!=null ? fmt(Number(it.price)||0,p.currency) : ''}</td></tr>`).join('')}</table>` : '<span class="muted">沒有明細品項</span>'}
+    ${p.note ? `<p class="pre" style="margin:8px 0 0">${esc(p.note)}</p>` : ''}
+    ${p.photo ? `<p style="margin:6px 0 0"><a href="${esc(p.photo)}" target="_blank" rel="noopener">${I.cam} 看收據照片</a></p>` : ''}
+    ${S.canWrite ? `<div style="text-align:right;margin-top:6px"><button class="btn ghost" data-act="entry-edit" data-col="pool" data-id="${p.id}">${I.edit}編輯</button></div>` : ''}
+  </div>` : ''}`;
+}
+
+/* split */
+function renderSplit(){
+  const {bal, pairs, xfers} = splitCalc();
+  const P = S.splitPerson;
+  const maxAbs = Math.max(1, ...Object.values(bal).map(Math.abs));
+  const ents = [...S.splits].filter(e => P==='all' || e.payer===P || e.from===P || e.to===P || (e.participants||[]).includes(P))
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||'') || (b.createdAt||0)-(a.createdAt||0));
+  const shownX = (S.splitView==='min' ? xfers : pairs).filter(x => P==='all' || x.from===P || x.to===P);
+  return `
+  <section class="card">
+    <div class="sec-h"><h2>誰該收、誰該付</h2><span class="small muted">以台幣結算</span></div>
+    <div style="margin-top:8px">${members().map(m => { const v = bal[m.id]||0, w = Math.min(50, Math.abs(v)/maxAbs*50);
+      return `<div class="bal"><span class="name">${esc(m.name)}</span><span class="track"><span class="fill" style="${v>=0?`left:50%;width:${w}%;background:var(--pos)`:`right:50%;width:${w}%;background:var(--neg)`}"></span></span>
+      <span class="v num ${Math.abs(v)<1?'muted':v>0?'pos':'neg'}">${Math.abs(v)<1?'已結清':(v>0?'收 ':'付 ')+fT(Math.abs(v))}</span></div>`; }).join('')}</div>
+    ${S.canWrite ? `<div class="btn-row" style="margin-top:12px">
+      <button class="btn primary" data-act="entry-add" data-dest="split">${I.plus}新增分帳</button>
+      <button class="btn" data-act="receipt" data-dest="split" ${S.ai ? '' : 'hidden'}>${I.cam}拍收據</button>
+      <button class="btn" data-act="xfer-add">記一筆還款</button></div>` : ''}
+  </section>
+  <div class="chips"><button class="chip" data-act="sp-person" data-id="all" aria-pressed="${P==='all'}">所有人</button>
+    ${members().map(m => `<button class="chip" data-act="sp-person" data-id="${m.id}" aria-pressed="${P===m.id}">${esc(m.name)}的帳</button>`).join('')}</div>
+  <section class="card">
+    <div class="seg" role="group" aria-label="結算方式">
+      <button data-act="sp-view" data-v="min" aria-pressed="${S.splitView==='min'}">最少轉帳次數</button>
+      <button data-act="sp-view" data-v="pair" aria-pressed="${S.splitView==='pair'}">兩人之間明細</button></div>
+    <p class="hint" style="margin:8px 0 4px">${S.splitView==='min' ? '把所有人的帳合併後，用最少的轉帳次數結清。' : '只看兩兩之間的帳，例如「小姑欠我多少」，互相抵銷後的淨額。'}</p>
+    ${shownX.length ? shownX.map(x => `<div class="xfer"><div class="who">${esc(mName(x.from))}<span class="arrow">付給</span>${esc(mName(x.to))}</div>
+      <span class="v num">${fT(x.amt)}</span>${S.canWrite ? `<button class="btn" data-act="settle" data-from="${x.from}" data-to="${x.to}" data-amt="${Math.round(x.amt)}">已付</button>` : ''}</div>`).join('')
+      : `<div class="empty small">${S.splits.length ? '目前沒有需要轉帳的款項' : '新增分帳後，這裡會算出誰要付給誰'}</div>`}
+  </section>
+  <section class="card">
+    <div class="sec-h"><h3>分帳紀錄${P!=='all' ? `（${esc(mName(P))}相關）` : ''}</h3><span class="small muted">${ents.length} 筆</span></div>
+    <div class="list" style="margin-top:4px">${ents.length ? ents.map(splitRow).join('') : '<div class="empty small">還沒有紀錄。先付了機票、包車，或大家合買的東西，都可以記在這裡。</div>'}</div>
+  </section>`;
+}
+function splitRow(e){
+  const amt = Number(e.amount)||0;
+  if (e.kind === 'transfer') return `<button class="row" data-act="xfer-edit" data-id="${e.id}" ${S.canWrite?'':'disabled'}>
+    <span class="tag" style="--tc:var(--pos)">還款</span><div class="grow"><div class="t1">${esc(mName(e.from))} 付給 ${esc(mName(e.to))}</div><div class="t2 num">${esc(dLabel(e.date))}${e.note ? ' · ' + esc(e.note) : ''}</div></div>
+    <div class="amt num">${fmt(amt,e.currency)}</div></button>`;
+  const parts = e.participants || [];
+  const per = e.mode === 'custom' ? '自訂' : '每人 ' + fmt(amt/(parts.length||1), e.currency);
+  const open = S.open.has(e.id);
+  return `<button class="row" data-act="toggle" data-id="${e.id}" aria-expanded="${open}">
+    <div class="grow"><div class="t1">${esc(e.title)}</div><div class="t2 num">${esc(dLabel(e.date))} · ${esc(mName(e.payer))} 先付 · ${per}</div>
+    <div class="people">${parts.map(id => `<span>${esc(mName(id))}</span>`).join('')}</div></div>
+    <div class="amt num">${fmt(amt,e.currency)}<small>${other(amt,e.currency)}</small></div></button>
+  ${open ? `<div class="detail"><table class="num">${parts.map(id => `<tr><td>${esc(mName(id))}${id===e.payer?' <span class="muted small">（付款人）</span>':''}</td><td>${fmt(e.mode==='custom' ? Number(e.shares?.[id])||0 : amt/(parts.length||1), e.currency)}</td></tr>`).join('')}</table>
+    ${(e.items||[]).length ? `<p class="small muted" style="margin:8px 0 2px">明細</p><table class="num">${e.items.map(it => `<tr><td>${esc(it.zh||it.orig)}${it.orig && it.zh ? `<div class="muted small">${esc(it.orig)}</div>` : ''}</td><td>${it.price!==''&&it.price!=null ? fmt(Number(it.price)||0,e.currency) : ''}</td></tr>`).join('')}</table>` : ''}
+    ${e.note ? `<p class="pre" style="margin:8px 0 0">${esc(e.note)}</p>` : ''}
+    ${e.photo ? `<p style="margin:6px 0 0"><a href="${esc(e.photo)}" target="_blank" rel="noopener">${I.cam} 看收據照片</a></p>` : ''}
+    ${S.canWrite ? `<div style="text-align:right;margin-top:6px"><button class="btn ghost" data-act="entry-edit" data-col="splits" data-id="${e.id}">${I.edit}編輯</button></div>` : ''}</div>` : ''}`;
+}
+
+/* spots */
+function renderSpots(){
+  const list = S.spots.filter(s => S.spotCat==='all' || s.type===S.spotCat).sort((a,b)=>(a.area||'').localeCompare(b.area||'') || (a.createdAt||0)-(b.createdAt||0));
+  return `
+  <section class="card">
+    <div class="sec-h"><h2>口袋名單</h2><span class="small muted">${S.spots.length} 個地點</span></div>
+    <p class="hint" style="margin-top:4px">想去的餐廳、景點、交通方式先收在這裡，排行程時再加進某一天的方案。</p>
+    ${S.canWrite ? `<div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="spot-add">${I.plus}新增地點</button>
+      <button class="btn" data-act="import-spots" ${S.ai ? '' : 'hidden'}>${I.ai}貼文字整理</button></div>` : ''}
+  </section>
+  <div class="chips"><button class="chip" data-act="spot-cat" data-c="all" aria-pressed="${S.spotCat==='all'}">全部</button>
+    ${Object.entries(TYPES).map(([k,[l]]) => `<button class="chip" data-act="spot-cat" data-c="${k}" aria-pressed="${S.spotCat===k}">${l}</button>`).join('')}</div>
+  <section class="card">${list.length ? list.map(s => { const [tl,tc] = TYPES[s.type]||TYPES.other;
+    const map = s.link || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + (s.area?' '+s.area:''))}`;
+    return `<div class="spot"><div class="grow">
+      <div class="nm"><span class="tag" style="--tc:var(${tc})">${tl}</span>${esc(s.name)}${s.area ? `<span class="small muted">${esc(s.area)}</span>` : ''}</div>
+      ${s.note ? `<div class="small muted pre" style="margin-top:2px">${esc(s.note)}</div>` : ''}
+      <div class="tl"><div class="links" style="display:flex;gap:12px;margin-top:4px;font-size:13px"><a href="${esc(map)}" target="_blank" rel="noopener">${I.pin}地圖</a>
+      ${S.canWrite && S.days.length ? `<a href="#trip" data-act="spot-to-plan" data-id="${s.id}">${I.plus}排進行程</a>` : ''}</div></div>
+    </div>${S.canWrite ? `<button class="icon-btn" data-act="spot-edit" data-id="${s.id}" aria-label="編輯">${I.edit}</button>` : ''}</div>`; }).join('')
+    : `<div class="empty small">${S.spots.length ? '這個分類還沒有地點' : '還沒有地點。可以把 Google 地圖清單或筆記整段貼上，讓 Claude 幫你分類整理。'}</div>`}</section>`;
+}
+
+/* setup */
+function renderSetup(){
+  const m = S.meta || DEFAULT_META;
+  return `
+  <section class="card">
+    <div class="sec-h"><h2>這支手機是誰的？</h2></div>
+    <p class="hint" style="margin-top:4px">選了之後，記帳時「誰先付的」會預設是你。每支手機選一次就好。</p>
+    <div class="who">${members().map(x => `<button class="chip" data-act="me-set" data-id="${x.id}" aria-pressed="${S.meId===x.id}">${esc(x.name)}</button>`).join('')}</div>
+  </section>
+  <section class="card">
+    <div class="sec-h"><h2>旅程設定</h2><button class="btn" data-act="setup-edit">${I.edit}編輯</button></div>
+    <div class="list" style="margin-top:6px">
+      <div class="row" style="cursor:default"><div class="grow">旅程名稱</div><b>${esc(m.name)}</b></div>
+      <div class="row" style="cursor:default"><div class="grow">日期</div><b class="num">${m.startDate ? esc(dLabel(m.startDate)+' – '+dLabel(m.endDate)) : '未設定'}</b></div>
+      <div class="row" style="cursor:default"><div class="grow">匯率（1 日圓 = ? 台幣）</div><b class="num">${rate()}</b></div>
+      <div class="row" style="cursor:default"><div class="grow">成員</div><b>${members().map(x => esc(x.name) + (x.child ? '（小孩）' : '')).join('、')}</b></div>
+    </div>
+  </section>
+  <section class="card">
+    <h3>邀請家人</h3>
+    <p class="small" style="margin:6px 0 10px">把連結傳到家族 LINE 群組，家人點開就能用，不需要帳號。</p>
+    <button class="btn primary" data-act="share-link" style="width:100%">分享 app 連結</button>
+  </section>
+  <section class="card">
+    <h3>安裝到手機主畫面</h3>
+    <ol class="small" style="margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px">
+      <li><b>iPhone</b>：用 Safari 開啟連結，點下方的「分享」按鈕，選「加入主畫面」。</li>
+      <li><b>Android</b>：用 Chrome 開啟，點右上角「⋮」，選「加到主畫面」或「安裝應用程式」。</li>
+      <li>之後從主畫面的圖示打開，就會像一般 app 一樣全螢幕使用。</li>
+    </ol>
+  </section>
+  <section class="card">
+    <h3>收據辨識</h3>
+    <p class="small" style="margin:6px 0 0">${S.ai ? '已開啟。拍收據後，日文、英文都會翻成中文並整理品項，照片也會存到雲端硬碟。' : '尚未開啟。需要在 Apps Script 設定 Gemini 金鑰，開啟後「公費」頁會出現「拍收據」按鈕。'}</p>
+  </section>
+  <p class="hint" style="text-align:center">資料存在 Google 試算表，全家同步。沒有網路時也能記帳，有網路後會自動上傳。</p>`;
+}
+function installCard(){
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (standalone || LS.get('trip-install-hide', false)) return '';
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  return `<section class="card install"><img src="icon-192.png" alt=""><div class="grow">
+    <b>加到手機主畫面</b>
+    <p class="small muted" style="margin:2px 0 8px">${ios ? '點 Safari 下方的「分享」，選「加入主畫面」，之後點圖示就能像 app 一樣打開。' : (deferredPrompt ? '安裝後點圖示就能像 app 一樣打開。' : '點瀏覽器選單的「加到主畫面」，之後點圖示就能像 app 一樣打開。')}</p>
+    <div class="btn-row">${!ios && deferredPrompt ? `<button class="btn primary" data-act="install">安裝</button>` : ''}<button class="btn ghost" data-act="install-hide">知道了</button></div>
+  </div></section>`;
+}
+
+/* ---------- modals ---------- */
+let sampleCtl = null;
+function openModal(title, html, mount){
+  const m = $('#modal');
+  m.innerHTML = `<div class="scrim" data-act="close"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="sheet-h"><h2>${esc(title)}</h2><button class="icon-btn" data-act="close" aria-label="關閉">${I.x}</button></div>
+    <div class="sheet-b">${html}</div></div>`;
+  m.hidden = false; document.body.classList.add('lock');
+  if (mount) mount($('.sheet-b', m));
+  const f = $('input:not([type=checkbox]):not([type=file]),textarea', m); if (f && matchMedia('(hover:hover)').matches) f.focus();
+}
+function closeModal(){ sampleCtl?.abort(); sampleCtl = null; const m = $('#modal'); m.hidden = true; m.innerHTML = ''; document.body.classList.remove('lock'); }
+function armDelete(btn, fn){
+  btn.addEventListener('click', async () => {
+    if (!btn.classList.contains('armed')){ btn.classList.add('armed'); btn.textContent = '再按一次確認刪除'; setTimeout(()=>{ if (btn.isConnected){ btn.classList.remove('armed'); btn.textContent = '刪除'; } }, 3500); return; }
+    btn.disabled = true; if (await fn()){ closeModal(); toast('已刪除'); } else btn.disabled = false;
+  });
+}
+const memberChecks = (name, sel) => `<div class="chks">${members().map(m => `<label><input type="checkbox" name="${name}" value="${m.id}" ${sel.includes(m.id)?'checked':''}>${esc(m.name)}</label>`).join('')}</div>`;
+const curSel = (id, v) => `<select id="${id}"><option value="JPY" ${v!=='TWD'?'selected':''}>日圓 ¥</option><option value="TWD" ${v==='TWD'?'selected':''}>台幣 NT$</option></select>`;
+const memberSel = (id, v) => `<select id="${id}">${members().map(m => `<option value="${m.id}" ${m.id===v?'selected':''}>${esc(m.name)}</option>`).join('')}</select>`;
+
+/* entry (pool or split) */
+function openEntry(opt){
+  const ad = adults().map(m=>m.id);
+  const d = Object.assign({date:defaultDate(), title:'', orig:'', amount:'', currency:'JPY', category:'餐飲', items:[], note:'',
+    payer:members().some(m => m.id === S.meId) ? S.meId : (members().some(m => m.id === 'me') ? 'me' : members()[0]?.id), participants:ad, mode:'equal', shares:{}}, clone(opt.data || {}));
+  let dest = opt.dest || 'pool';
+  const editing = !!opt.id;
+  const html = `<form class="form" id="ef" novalidate>
+    ${opt.receipt ? `<p class="hint">已辨識並翻譯，請確認內容後選擇要記到哪裡。</p>` : ''}
+    <div class="seg" role="group" aria-label="記到哪裡"><button type="button" data-d="pool" aria-pressed="${dest==='pool'}">公費支出</button><button type="button" data-d="split" aria-pressed="${dest==='split'}">分帳（有人先付）</button></div>
+    ${fld('項目名稱', `<input id="ef-title" type="text" value="${esc(d.title)}" placeholder="例如：午餐 一蘭拉麵">`)}
+    ${fld('原文（收據上的名稱，可空白）', `<input id="ef-orig" type="text" value="${esc(d.orig)}">`)}
+    <div class="row2">${fld('金額', `<input id="ef-amt" type="number" inputmode="decimal" min="0" step="any" value="${esc(d.amount)}">`)}${fld('幣別', curSel('ef-cur', d.currency))}</div>
+    <div class="row2">${fld('日期', `<input id="ef-date" type="date" value="${esc(d.date)}">`)}${fld('分類', `<select id="ef-cat">${CATS.map(c=>`<option ${c===d.category?'selected':''}>${c}</option>`).join('')}</select>`)}</div>
+    <div id="ef-split" class="form" ${dest==='split'?'':'hidden'}>
+      ${fld('誰先付的', memberSel('ef-payer', d.payer))}
+      <div class="f"><span>分給誰（打勾的人一起分）</span>${memberChecks('ef-p', d.participants)}
+        <div class="btn-row" style="margin-top:4px"><button type="button" class="btn ghost" data-pre="adults">大人 ${ad.length} 位</button><button type="button" class="btn ghost" data-pre="all">全部 ${members().length} 位</button><button type="button" class="btn ghost" data-pre="none">清除</button></div></div>
+      <div class="seg" role="group" aria-label="分法"><button type="button" data-m="equal" aria-pressed="${d.mode!=='custom'}">平均分</button><button type="button" data-m="custom" aria-pressed="${d.mode==='custom'}">各自金額不同</button></div>
+      <div id="ef-custom" class="form" ${d.mode==='custom'?'':'hidden'}></div>
+      <p class="hint num" id="ef-share"></p>
+    </div>
+    <details ${d.items.length?'open':''}><summary>明細品項（<span id="ef-icount">${d.items.length}</span>）</summary>
+      <div id="ef-items" style="margin-top:6px"></div><button type="button" class="btn ghost" id="ef-additem">${I.plus}加一項</button></details>
+    ${fld('備註', `<textarea id="ef-note" rows="2">${esc(d.note)}</textarea>`)}
+    <p class="hint err" id="ef-err" hidden></p>
+    <div class="actions">${editing ? `<button type="button" class="btn danger" id="ef-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div>
+  </form>`;
+  openModal(editing ? '編輯紀錄' : (opt.receipt ? '收據內容確認' : '記一筆'), html, b => {
+    let mode = d.mode === 'custom' ? 'custom' : 'equal';
+    const shares = Object.assign({}, d.shares);
+    const parts = () => $$('input[name=ef-p]:checked', b).map(x => x.value);
+    const itemsBox = $('#ef-items', b);
+    const addItem = (it={}) => { const r = document.createElement('div'); r.className = 'irow';
+      r.innerHTML = `<input class="iz" placeholder="中文品名" value="${esc(it.zh||'')}"><input class="io" placeholder="原文" value="${esc(it.orig||'')}"><input class="ip num" type="number" step="any" inputmode="decimal" placeholder="金額" value="${esc(it.price??'')}"><button type="button" class="icon-btn" aria-label="移除">${I.x}</button>`;
+      $('button', r).onclick = () => { r.remove(); $('#ef-icount', b).textContent = $$('.irow', itemsBox).length; };
+      itemsBox.append(r); $('#ef-icount', b).textContent = $$('.irow', itemsBox).length; };
+    d.items.forEach(addItem);
+    $('#ef-additem', b).onclick = () => addItem();
+    const drawCustom = () => {
+      const box = $('#ef-custom', b);
+      box.innerHTML = parts().map(id => `<div class="row2" style="align-items:center"><span>${esc(mName(id))}</span><input type="number" step="any" inputmode="decimal" data-sh="${id}" value="${esc(shares[id] ?? '')}" style="border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:16px;min-width:0"></div>`).join('');
+      $$('input[data-sh]', box).forEach(inp => inp.oninput = () => { shares[inp.dataset.sh] = inp.value; updShare(); });
+    };
+    const updShare = () => {
+      const amt = Number($('#ef-amt', b).value)||0, cur = $('#ef-cur', b).value, p = parts(), out = $('#ef-share', b);
+      if (!p.length){ out.textContent = '請至少勾選一位'; return; }
+      if (mode === 'equal') out.textContent = `${p.length} 人平均，每人 ${fmt(amt/p.length,cur)}（${other(amt/p.length,cur)}）`;
+      else { const sum = p.reduce((s,id)=>s+(Number(shares[id])||0),0), left = amt - sum;
+        out.textContent = Math.abs(left) < 0.5 ? `已分配完 ${fmt(sum,cur)}` : `已分配 ${fmt(sum,cur)}，${left>0?'還差':'超過'} ${fmt(Math.abs(left),cur)}`; }
+    };
+    $$('[data-d]', b).forEach(x => x.onclick = () => { dest = x.dataset.d; $$('[data-d]', b).forEach(y => y.setAttribute('aria-pressed', y===x)); $('#ef-split', b).hidden = dest !== 'split'; updShare(); });
+    $$('[data-m]', b).forEach(x => x.onclick = () => { mode = x.dataset.m; $$('[data-m]', b).forEach(y => y.setAttribute('aria-pressed', y===x)); $('#ef-custom', b).hidden = mode !== 'custom'; drawCustom(); updShare(); });
+    $$('[data-pre]', b).forEach(x => x.onclick = () => { const v = x.dataset.pre; $$('input[name=ef-p]', b).forEach(c => c.checked = v==='all' || (v==='adults' && ad.includes(c.value))); drawCustom(); updShare(); });
+    $$('input[name=ef-p]', b).forEach(c => c.onchange = () => { drawCustom(); updShare(); });
+    $('#ef-amt', b).oninput = updShare; $('#ef-cur', b).onchange = updShare;
+    drawCustom(); updShare();
+    if (editing) armDelete($('#ef-del', b), () => del(opt.col, opt.id));
+    $('#ef', b).onsubmit = async ev => {
+      ev.preventDefault();
+      const err = $('#ef-err', b); err.hidden = true;
+      const fail = msg => { err.textContent = msg; err.hidden = false; };
+      const title = $('#ef-title', b).value.trim(), amount = Number($('#ef-amt', b).value);
+      if (!title) return fail('請填寫項目名稱');
+      if (!(amount > 0)) return fail('請填寫金額');
+      const items = $$('.irow', itemsBox).map(r => ({zh:$('.iz',r).value.trim(), orig:$('.io',r).value.trim(), price:$('.ip',r).value === '' ? '' : Number($('.ip',r).value)})).filter(i => i.zh || i.orig);
+      const data = {title, orig:$('#ef-orig', b).value.trim(), amount, currency:$('#ef-cur', b).value, date:$('#ef-date', b).value, category:$('#ef-cat', b).value,
+        items, note:$('#ef-note', b).value.trim(), photo:d.photo || '', createdAt:d.createdAt || Date.now(), updatedAt:Date.now()};
+      if (dest === 'split'){
+        const p = parts(); if (!p.length) return fail('請勾選要一起分攤的人');
+        Object.assign(data, {kind:'expense', payer:$('#ef-payer', b).value, participants:p, mode});
+        if (mode === 'custom'){ const sh = {}; p.forEach(id => sh[id] = Number(shares[id])||0);
+          const sum = Object.values(sh).reduce((a,c)=>a+c,0); if (Math.abs(sum-amount) >= 1) return fail(`各自金額加總（${fmt(sum,data.currency)}）和總金額不一樣`); data.shares = sh; }
+      }
+      const col = dest === 'split' ? 'splits' : 'pool';
+      const id = editing && opt.col === col ? opt.id : newId();
+      $('button[type=submit]', b).disabled = true;
+      if (await put(col, id, data)){
+        if (editing && opt.col !== col) await del(opt.col, opt.id);
+        closeModal(); toast(col === 'pool' ? '已記入公費' : '已記入分帳');
+      } else $('button[type=submit]', b).disabled = false;
+    };
+  });
+}
+
+/* receipt */
+function shrinkImage(file){
+  return new Promise((ok, bad) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const max = 1800, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      ok(c.toDataURL('image/jpeg', 0.82).split(',')[1]);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); bad({code:'bad_image'}); };
+    img.src = url;
+  });
+}
+function openReceipt(dest){
+  openModal('拍收據', `<div class="form">
+    <label class="drop" for="rc-file">${I.cam}<b>拍照或選擇收據照片</b><span class="small muted">日文、英文、中文都可以，會讀出品項並翻成中文</span></label>
+    <input id="rc-file" type="file" accept="image/*" hidden>
+    <div id="rc-out"></div></div>`, b => {
+    $('#rc-file', b).onchange = async ev => {
+      const file = ev.target.files?.[0]; if (!file) return;
+      const out = $('#rc-out', b);
+      const url = URL.createObjectURL(file);
+      out.innerHTML = `<img class="preview-img" src="${url}" alt="收據照片"><p class="hint" style="text-align:center;margin-top:10px"><span class="spin"></span> 正在讀收據並翻譯，約需 10–30 秒…</p><div style="text-align:center"><button class="btn ghost" id="rc-stop">取消</button></div>`;
+      sampleCtl = new AbortController();
+      $('#rc-stop', b).onclick = () => sampleCtl?.abort();
+      try {
+        const image = await shrinkImage(file);
+        const j = await api({action:'receipt', image, mime:'image/jpeg'}, sampleCtl.signal);
+        URL.revokeObjectURL(url);
+        const r = j.result || {};
+        const total = Number(r.total) || 0;
+        const items = Array.isArray(r.items) ? r.items.slice(0,40).map(i => ({zh:String(i?.zh||''), orig:String(i?.orig||''), price: i?.price==null || i.price==='' ? '' : Number(i.price)||0})) : [];
+        const data = {title:String(r.storeZh || r.store || '收據'), orig:String(r.store||''), amount: total || items.reduce((s,i)=>s+(Number(i.price)||0),0) || '',
+          currency: r.currency === 'TWD' ? 'TWD' : 'JPY', date: /^\d{4}-\d{2}-\d{2}$/.test(r.date||'') ? r.date : defaultDate(),
+          category: CATS.includes(r.category) ? r.category : '其他', items, note:String(r.note||''), photo:j.photoUrl || ''};
+        sampleCtl = null; closeModal(); openEntry({dest, data, receipt:true});
+      } catch(e){
+        URL.revokeObjectURL(url);
+        if (e?.name === 'AbortError'){ out.innerHTML = ''; return; }
+        out.innerHTML = `<p class="hint err">${esc(sampleErr(e))}</p>`;
+      }
+    };
+  });
+}
+function openImport(kind){
+  const forPlan = kind === 'plan';
+  openModal(forPlan ? '貼文字整理成行程' : '貼文字整理成口袋名單', `<div class="form">
+    <p class="hint">${forPlan ? '把這天的行程筆記、旅行社行程或聊天記錄貼上，Claude 會整理成有時間的行程項目，加到目前的方案。' : '把 Google 地圖清單、部落格推薦、聊天記錄等貼上，Claude 會整理成地點，並分成美食、景點、交通等。'}</p>
+    ${fld('內容', `<textarea id="im-text" rows="8" placeholder="${forPlan ? '例如：9點 飯店出發 搭JR到嵐山，竹林小徑，中午吃湯豆腐…' : '例如：一蘭拉麵 天神店、太宰府天滿宮、由布院之森（要先訂票）…'}"></textarea>`)}
+    <div class="actions"><span></span><button class="btn primary" id="im-go">${I.ai}整理</button></div>
+    <div id="im-out"></div></div>`, b => {
+    $('#im-go', b).onclick = async () => {
+      const text = $('#im-text', b).value.trim(); if (!text) return;
+      const out = $('#im-out', b), go = $('#im-go', b);
+      go.disabled = true; out.innerHTML = `<p class="hint"><span class="spin"></span> 整理中…</p>`;
+      sampleCtl = new AbortController();
+      const types = 'sight(景點)|food(美食/餐廳/咖啡)|move(交通，如搭車、轉乘、包車)|shop(購物)|stay(住宿)|other';
+      const prompt = forPlan
+        ? `把下面的日本旅遊行程筆記整理成行程項目。只回傳 JSON 陣列，每項：{"time":"HH:MM 或空字串","type":"${types} 擇一的英文代碼","title":"簡短名稱（繁體中文，日文地名可保留）","area":"地區，如 京都嵐山，不確定就空字串","note":"補充說明，如交通方式、要訂位、預算，沒有就空字串"}。依時間先後排列；只使用筆記裡有的資訊，不要編造。\n\n筆記：\n${text.slice(0,12000)}`
+        : `把下面的日本旅遊筆記整理成地點清單。只回傳 JSON 陣列，每項：{"name":"地點或店名（繁體中文，可附原文）","type":"${types} 擇一的英文代碼","area":"地區，如 福岡天神，不確定就空字串","note":"推薦原因、必點、營業時間、注意事項等，沒有就空字串","link":"筆記中若有這個地點的網址就填，否則空字串"}。重複的地點合併；只使用筆記裡有的資訊，不要編造。\n\n筆記：\n${text.slice(0,12000)}`;
+      try {
+        const arr = (await api({action:'ai', prompt}, sampleCtl.signal)).result;
+        sampleCtl = null;
+        const rows = (Array.isArray(arr) ? arr : []).filter(x => x && (x.title || x.name)).slice(0,60).map(x => ({...x, type: TYPES[x.type] ? x.type : 'other'}));
+        if (!rows.length){ out.innerHTML = '<p class="hint err">沒有整理出任何項目，換個寫法再試一次。</p>'; go.disabled = false; return; }
+        out.innerHTML = `<p class="hint" style="margin-top:6px">取消勾選不要的項目：</p>
+          <div>${rows.map((x,i) => { const [tl,tc] = TYPES[x.type]; return `<label class="pick"><input type="checkbox" checked data-i="${i}" style="margin-top:4px;accent-color:var(--accent)">
+            <span><span class="tag" style="--tc:var(${tc})">${tl}</span> ${x.time ? `<b class="num">${esc(x.time)}</b> ` : ''}<b>${esc(x.title || x.name)}</b>${x.area ? ` <span class="small muted">${esc(x.area)}</span>` : ''}${x.note ? `<div class="small muted">${esc(x.note)}</div>` : ''}</span></label>`; }).join('')}</div>
+          <div class="actions"><span></span><button class="btn primary" id="im-save">加入 ${rows.length} 項</button></div>`;
+        const upd = () => { const n = $$('input[data-i]:checked', out).length; $('#im-save', out).textContent = `加入 ${n} 項`; };
+        $$('input[data-i]', out).forEach(c => c.onchange = upd);
+        $('#im-save', out).onclick = async ev => {
+          ev.target.disabled = true;
+          const pick = $$('input[data-i]:checked', out).map(c => rows[+c.dataset.i]);
+          if (forPlan){
+            const day = S.days.find(d => d.id === S.dayId); if (!day) return;
+            const nd = clone(cur(day)); const pid = currentPlanId(nd); const p = nd.plans.find(x => x.id === pid);
+            pick.forEach(x => p.items.push({id:rid(), time:String(x.time||'').slice(0,5), type:x.type, title:String(x.title||''), area:String(x.area||''), note:String(x.note||''), link:''}));
+            const {id, ...rest} = nd; if (await put('days', day.id, rest)){ closeModal(); toast(`已加入 ${pick.length} 項`); } else ev.target.disabled = false;
+          } else {
+            let n = 0; for (const x of pick){ if (await put('spots', newId(), {name:String(x.name||''), type:x.type, area:String(x.area||''), note:String(x.note||''), link:/^https?:\/\//.test(x.link||'') ? x.link : '', createdAt:Date.now()+n})) n++; else break; }
+            closeModal(); toast(`已加入 ${n} 個地點`);
+          }
+        };
+      } catch(e){ sampleCtl = null; go.disabled = false; out.innerHTML = e?.name === 'AbortError' ? '' : `<p class="hint err">${esc(sampleErr(e))}</p>`; }
+    };
+  });
+}
+
+/* day / plan / item */
+function currentPlanId(day){
+  let pid = S.planSel[day.id];
+  if (!(day.plans||[]).find(p => p.id === pid)) pid = ((day.plans||[]).find(p => p.id === day.chosen) || day.plans?.[0])?.id;
+  return pid;
+}
+function openDay(day){
+  const editing = !!day;
+  openModal(editing ? '編輯這一天' : '新增一天', `<form class="form" id="df">
+    ${fld('日期', `<input id="df-date" type="date" value="${esc(day?.date || '')}">`)}
+    ${fld('這天的主題', `<input id="df-title" type="text" value="${esc(day?.title || '')}" placeholder="例如：太宰府＋柳川遊船">`)}
+    ${fld('住宿', `<input id="df-hotel" type="text" value="${esc(day?.hotel || '')}" placeholder="飯店名稱">`)}
+    ${fld('備註', `<textarea id="df-note" rows="3" placeholder="集合時間、要帶的東西、天氣提醒…">${esc(day?.note || '')}</textarea>`)}
+    <div class="actions">${editing ? `<button type="button" class="btn danger" id="df-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div></form>`, b => {
+    if (editing) armDelete($('#df-del', b), () => del('days', day.id));
+    $('#df', b).onsubmit = async ev => { ev.preventDefault();
+      const base = editing ? clone(day) : {plans:[{id:rid(), name:'方案一', items:[]}], createdAt:Date.now()};
+      if (!editing) base.chosen = base.plans[0].id;
+      Object.assign(base, {date:$('#df-date', b).value, title:$('#df-title', b).value.trim(), hotel:$('#df-hotel', b).value.trim(), note:$('#df-note', b).value.trim()});
+      const {id, ...rest} = base; const nid = editing ? day.id : newId();
+      if (await put('days', nid, rest)){ S.dayId = nid; closeModal(); toast('已儲存'); } };
+  });
+}
+async function saveDay(nd){ const {id, ...rest} = nd; return put('days', nd.id, rest); }
+function openPlanEdit(){
+  const day = S.days.find(d => d.id === S.dayId); const pid = currentPlanId(day); const plan = day.plans.find(p => p.id === pid);
+  openModal('方案設定', `<form class="form" id="pf">${fld('方案名稱', `<input id="pf-name" type="text" value="${esc(plan.name)}">`)}
+    <button type="button" class="btn" id="pf-copy">複製成新方案（以此為基礎修改）</button>
+    <div class="actions">${day.plans.length > 1 ? `<button type="button" class="btn danger" id="pf-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div></form>`, b => {
+    $('#pf', b).onsubmit = async ev => { ev.preventDefault(); const nd = clone(cur(day)); nd.plans.find(p => p.id === pid).name = $('#pf-name', b).value.trim() || plan.name; if (await saveDay(nd)) closeModal(); };
+    $('#pf-copy', b).onclick = async () => { const nd = clone(cur(day)); const np = clone(plan); np.id = rid(); np.name = plan.name + '（副本）'; np.items.forEach(i => i.id = rid()); nd.plans.push(np);
+      if (await saveDay(nd)){ S.planSel[day.id] = np.id; closeModal(); toast('已複製方案'); } };
+    if (day.plans.length > 1) armDelete($('#pf-del', b), async () => { const nd = clone(cur(day)); nd.plans = nd.plans.filter(p => p.id !== pid); if (nd.chosen === pid) nd.chosen = nd.plans[0].id; return saveDay(nd); });
+  });
+}
+function openItem(idx, preset){
+  const day = S.days.find(d => d.id === S.dayId); if (!day) return;
+  const pid = currentPlanId(day); const plan = day.plans.find(p => p.id === pid);
+  const editing = idx != null; const it = editing ? plan.items[idx] : Object.assign({time:'', type:'sight', title:'', area:'', note:'', link:''}, preset || {});
+  openModal(editing ? '編輯行程' : `新增到 ${dLabel(day.date)} ${plan.name}`, `<form class="form" id="itf">
+    ${!editing && S.spots.length && !preset ? fld('從口袋名單帶入（可略過）', `<select id="it-spot"><option value="">— 選擇地點 —</option>${S.spots.map(s => `<option value="${s.id}">${esc((TYPES[s.type]||TYPES.other)[0] + '｜' + s.name)}</option>`).join('')}</select>`) : ''}
+    <div class="row2">${fld('時間', `<input id="it-time" type="time" value="${esc(it.time)}">`)}${fld('類型', `<select id="it-type">${Object.entries(TYPES).map(([k,[l]]) => `<option value="${k}" ${k===it.type?'selected':''}>${l}</option>`).join('')}</select>`)}</div>
+    ${fld('名稱', `<input id="it-title" type="text" value="${esc(it.title)}" placeholder="例如：太宰府天滿宮">`)}
+    ${fld('地區（幫助地圖搜尋）', `<input id="it-area" type="text" value="${esc(it.area||'')}" placeholder="例如：福岡">`)}
+    ${fld('說明', `<textarea id="it-note" rows="3" placeholder="交通方式、必吃、要預約、預算…">${esc(it.note)}</textarea>`)}
+    ${fld('Google 地圖連結（可空白，會自動用名稱搜尋）', `<input id="it-link" type="url" value="${esc(it.link)}" placeholder="https://maps.app.goo.gl/…">`)}
+    <p class="hint err" id="it-err" hidden></p>
+    <div class="actions">${editing ? `<button type="button" class="btn danger" id="it-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div></form>`, b => {
+    const sp = $('#it-spot', b);
+    if (sp) sp.onchange = () => { const s = S.spots.find(x => x.id === sp.value); if (!s) return;
+      $('#it-title', b).value = s.name; $('#it-type', b).value = s.type || 'other'; $('#it-area', b).value = s.area || ''; $('#it-note', b).value = s.note || ''; $('#it-link', b).value = s.link || ''; };
+    if (editing) armDelete($('#it-del', b), () => { const nd = clone(cur(day)); nd.plans.find(p => p.id === pid).items.splice(idx, 1); return saveDay(nd); });
+    $('#itf', b).onsubmit = async ev => { ev.preventDefault();
+      const title = $('#it-title', b).value.trim(); if (!title){ const e = $('#it-err', b); e.textContent = '請填寫名稱'; e.hidden = false; return; }
+      const link = $('#it-link', b).value.trim();
+      const ni = {id:it.id || rid(), time:$('#it-time', b).value, type:$('#it-type', b).value, title, area:$('#it-area', b).value.trim(), note:$('#it-note', b).value.trim(), link:/^https?:\/\//.test(link) ? link : ''};
+      const nd = clone(cur(day)); const p = nd.plans.find(x => x.id === pid);
+      if (editing) p.items[idx] = ni; else p.items.push(ni);
+      if (await saveDay(nd)){ closeModal(); toast('已儲存'); } };
+  });
+}
+function openSpot(s){
+  const editing = !!s; s = s || {name:'', type:'food', area:'', note:'', link:''};
+  openModal(editing ? '編輯地點' : '新增地點', `<form class="form" id="sf">
+    ${fld('名稱', `<input id="sf-name" type="text" value="${esc(s.name)}" placeholder="例如：一蘭拉麵 本社總本店">`)}
+    <div class="row2">${fld('類型', `<select id="sf-type">${Object.entries(TYPES).map(([k,[l]]) => `<option value="${k}" ${k===s.type?'selected':''}>${l}</option>`).join('')}</select>`)}${fld('地區', `<input id="sf-area" type="text" value="${esc(s.area)}" placeholder="例如：博多">`)}</div>
+    ${fld('說明', `<textarea id="sf-note" rows="3" placeholder="必點、營業時間、適合婆婆/小孩嗎、要不要訂位…">${esc(s.note)}</textarea>`)}
+    ${fld('Google 地圖或網站連結', `<input id="sf-link" type="url" value="${esc(s.link)}">`)}
+    <p class="hint err" id="sf-err" hidden></p>
+    <div class="actions">${editing ? `<button type="button" class="btn danger" id="sf-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div></form>`, b => {
+    if (editing) armDelete($('#sf-del', b), () => del('spots', s.id));
+    $('#sf', b).onsubmit = async ev => { ev.preventDefault();
+      const name = $('#sf-name', b).value.trim(); if (!name){ const e = $('#sf-err', b); e.textContent = '請填寫名稱'; e.hidden = false; return; }
+      const link = $('#sf-link', b).value.trim();
+      const data = {name, type:$('#sf-type', b).value, area:$('#sf-area', b).value.trim(), note:$('#sf-note', b).value.trim(), link:/^https?:\/\//.test(link) ? link : '', createdAt:s.createdAt || Date.now()};
+      if (await put('spots', editing ? s.id : newId(), data)){ closeModal(); toast('已儲存'); } };
+  });
+}
+function openTopup(t){
+  const editing = !!t; t = t || {date:defaultDate(), perPerson:'', currency:'JPY', members:adults().map(m=>m.id), note:''};
+  openModal(editing ? '編輯公費收入' : '收公費', `<form class="form" id="tf">
+    <div class="row2">${fld('每人交多少', `<input id="tf-amt" type="number" inputmode="decimal" step="any" min="0" value="${esc(t.perPerson)}">`)}${fld('幣別', curSel('tf-cur', t.currency))}</div>
+    <div class="f"><span>誰有交</span>${memberChecks('tf-m', t.members)}</div>
+    ${fld('日期', `<input id="tf-date" type="date" value="${esc(t.date)}">`)}
+    ${fld('備註', `<input id="tf-note" type="text" value="${esc(t.note)}" placeholder="例如：第一次收公費">`)}
+    <p class="hint num" id="tf-sum"></p>
+    <div class="actions">${editing ? `<button type="button" class="btn danger" id="tf-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div></form>`, b => {
+    const upd = () => { const a = Number($('#tf-amt', b).value)||0, n = $$('input[name=tf-m]:checked', b).length, c = $('#tf-cur', b).value; $('#tf-sum', b).textContent = `共 ${fmt(a*n,c)}（${n} 人）`; };
+    b.oninput = upd; b.onchange = upd; upd();
+    if (editing) armDelete($('#tf-del', b), () => del('topups', t.id));
+    $('#tf', b).onsubmit = async ev => { ev.preventDefault();
+      const per = Number($('#tf-amt', b).value), ms = $$('input[name=tf-m]:checked', b).map(x => x.value);
+      if (!(per > 0) || !ms.length){ $('#tf-sum', b).textContent = '請填金額並勾選交錢的人'; return; }
+      if (await put('topups', editing ? t.id : newId(), {perPerson:per, currency:$('#tf-cur', b).value, members:ms, date:$('#tf-date', b).value, note:$('#tf-note', b).value.trim(), createdAt:t.createdAt || Date.now()})){ closeModal(); toast('已記錄公費'); } };
+  });
+}
+function openXfer(x){
+  const editing = !!x?.id; x = Object.assign({from:'', to:'me', amount:'', currency:'TWD', date:today(), note:''}, x || {});
+  if (!x.from) x.from = members().find(m => m.id !== x.to)?.id;
+  openModal(editing ? '編輯還款' : '記一筆還款', `<form class="form" id="xf">
+    <div class="row2">${fld('誰付錢', memberSel('xf-from', x.from))}${fld('付給誰', memberSel('xf-to', x.to))}</div>
+    <div class="row2">${fld('金額', `<input id="xf-amt" type="number" inputmode="decimal" step="any" min="0" value="${esc(x.amount)}">`)}${fld('幣別', curSel('xf-cur', x.currency))}</div>
+    ${fld('日期', `<input id="xf-date" type="date" value="${esc(x.date)}">`)}
+    ${fld('備註', `<input id="xf-note" type="text" value="${esc(x.note)}" placeholder="例如：LINE Pay 轉帳">`)}
+    <p class="hint err" id="xf-err" hidden></p>
+    <div class="actions">${editing ? `<button type="button" class="btn danger" id="xf-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div></form>`, b => {
+    if (editing) armDelete($('#xf-del', b), () => del('splits', x.id));
+    $('#xf', b).onsubmit = async ev => { ev.preventDefault();
+      const from = $('#xf-from', b).value, to = $('#xf-to', b).value, amount = Number($('#xf-amt', b).value), e = $('#xf-err', b);
+      if (from === to){ e.textContent = '付款人和收款人不能是同一位'; e.hidden = false; return; }
+      if (!(amount > 0)){ e.textContent = '請填寫金額'; e.hidden = false; return; }
+      if (await put('splits', editing ? x.id : newId(), {kind:'transfer', from, to, amount, currency:$('#xf-cur', b).value, date:$('#xf-date', b).value, note:$('#xf-note', b).value.trim(), createdAt:x.createdAt || Date.now()})){ closeModal(); toast('已記錄還款'); } };
+  });
+}
+function openSetup(){
+  const m = clone(S.meta || DEFAULT_META);
+  openModal('編輯旅程設定', `<form class="form" id="stf">
+    ${fld('旅程名稱', `<input id="st-name" type="text" value="${esc(m.name)}">`)}
+    <div class="row2">${fld('出發日', `<input id="st-start" type="date" value="${esc(m.startDate)}">`)}${fld('回程日', `<input id="st-end" type="date" value="${esc(m.endDate)}">`)}</div>
+    ${fld('匯率：1 日圓 = ? 台幣', `<input id="st-rate" type="number" step="0.0001" min="0" inputmode="decimal" value="${esc(m.rate)}">`)}
+    <div class="f"><span>成員（勾選「小孩」的人不收公費，分帳時預設不分攤）</span><div id="st-mem" class="form" style="gap:8px"></div>
+      <button type="button" class="btn ghost" id="st-add" style="align-self:flex-start">${I.plus}新增成員</button></div>
+    <p class="hint err" id="st-err" hidden></p>
+    <div class="actions"><span></span><button class="btn primary" type="submit">儲存</button></div></form>`, b => {
+    const box = $('#st-mem', b);
+    const addRow = mm => { const r = document.createElement('div'); r.className = 'mrow'; r.dataset.id = mm.id;
+      r.innerHTML = `<input type="text" value="${esc(mm.name)}" aria-label="名字"><label><input type="checkbox" ${mm.child?'checked':''}>小孩</label><button type="button" class="icon-btn" aria-label="移除">${I.x}</button>`;
+      $('button', r).onclick = () => r.remove(); box.append(r); };
+    m.members.forEach(addRow);
+    $('#st-add', b).onclick = () => { addRow({id:'m'+rid(), name:'', child:false}); $('input', box.lastChild).focus(); };
+    $('#stf', b).onsubmit = async ev => { ev.preventDefault();
+      const ms = $$('.mrow', box).map(r => ({id:r.dataset.id, name:$('input[type=text]', r).value.trim(), child:$('input[type=checkbox]', r).checked})).filter(x => x.name);
+      const e = $('#st-err', b);
+      if (!ms.length){ e.textContent = '至少要有一位成員'; e.hidden = false; return; }
+      const nm = {name:$('#st-name', b).value.trim() || '家族日本行', startDate:$('#st-start', b).value, endDate:$('#st-end', b).value, rate:Number($('#st-rate', b).value) || 0.21, members:ms};
+      if (nm.startDate && nm.endDate && nm.endDate < nm.startDate){ e.textContent = '回程日不能早於出發日'; e.hidden = false; return; }
+      if (await put('trip', 'meta', nm)){ closeModal(); toast('設定已更新'); } };
+  });
+}
+
+/* ---------- actions ---------- */
+const A = {
+  close: () => closeModal(),
+  'meta-create': async () => { if (await put('trip','meta', clone(DEFAULT_META))) toast('旅程已建立'); },
+  'day-sel': d => { S.dayId = d.id; render(); },
+  'day-add': () => openDay(null),
+  'day-edit': () => openDay(S.days.find(d => d.id === S.dayId)),
+  'day-auto': async () => {
+    const m = S.meta, have = new Set(S.days.map(d => d.date)); let n = 0;
+    for (let t = new Date(m.startDate+'T00:00'); isoOf(t) <= m.endDate && n < 31; t.setDate(t.getDate()+1)){
+      const iso = isoOf(t); if (have.has(iso)) continue;
+      const pid = rid(); if (!await put('days', newId(), {date:iso, title:'', hotel:'', note:'', plans:[{id:pid,name:'方案一',items:[]}], chosen:pid, createdAt:Date.now()+n})) break; n++;
+    }
+    toast(`已建立 ${n} 天`);
+  },
+  'plan-sel': d => { S.planSel[S.dayId] = d.id; render(); },
+  'plan-add': async () => { const day = S.days.find(d => d.id === S.dayId); const nd = clone(cur(day)); const np = {id:rid(), name:'方案' + '一二三四五六七八九十'[Math.min(nd.plans.length,9)], items:[]}; nd.plans.push(np);
+    if (await saveDay(nd)){ S.planSel[day.id] = np.id; render(); } },
+  'plan-choose': async () => { const day = S.days.find(d => d.id === S.dayId); const nd = clone(cur(day)); nd.chosen = currentPlanId(day); if (await saveDay(nd)) toast('已設為採用方案'); },
+  'plan-edit': () => openPlanEdit(),
+  'item-add': () => openItem(null),
+  'item-edit': d => openItem(+d.i),
+  'import-plan': () => openImport('plan'),
+  'import-spots': () => openImport('spots'),
+  receipt: d => openReceipt(d.dest),
+  'entry-add': d => openEntry({dest:d.dest}),
+  'entry-edit': d => { const col = d.col; const doc = S[col === 'pool' ? 'pool' : 'splits'].find(x => x.id === d.id); if (doc){ const {id, ...data} = doc; openEntry({dest: col === 'pool' ? 'pool' : 'split', col, id, data}); } },
+  toggle: d => { S.open.has(d.id) ? S.open.delete(d.id) : S.open.add(d.id); render(); },
+  'pool-date': d => { S.poolDate = d.d; if (S.tab !== 'pool') location.hash = 'pool'; render(); },
+  'topup-add': () => openTopup(null),
+  'topup-edit': d => openTopup(S.topups.find(t => t.id === d.id)),
+  'sp-view': d => { S.splitView = d.v; render(); },
+  'sp-person': d => { S.splitPerson = d.id; render(); },
+  settle: d => openXfer({from:d.from, to:d.to, amount:+d.amt, currency:'TWD', note:'結清'}),
+  'xfer-add': () => openXfer(null),
+  'xfer-edit': d => openXfer(S.splits.find(x => x.id === d.id)),
+  'spot-add': () => openSpot(null),
+  'spot-edit': d => openSpot(S.spots.find(s => s.id === d.id)),
+  'spot-cat': d => { S.spotCat = d.c; render(); },
+  'spot-to-plan': (d, ev) => { ev.preventDefault(); const s = S.spots.find(x => x.id === d.id); if (!s) return;
+    if (!S.dayId) S.dayId = sortDays()[0]?.id; location.hash = 'trip';
+    openItem(null, {type:s.type, title:s.name, area:s.area, note:s.note, link:s.link}); },
+  'setup-edit': () => openSetup(),
+  resync: () => { S.status = 'loading'; render(); sync(); },
+  'me-set': d => { S.meId = d.id; LS.set('trip-me', d.id); render(); toast('已記住：這支手機是' + mName(d.id)); },
+  'install-hide': () => { LS.set('trip-install-hide', true); render(); },
+  install: async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); try { await deferredPrompt.userChoice; } catch(e){} deferredPrompt = null; render(); },
+  'share-link': async () => {
+    const url = location.origin + location.pathname, title = (S.meta?.name || '家族旅行');
+    if (navigator.share){ try { await navigator.share({title, text:title + '：行程與記帳', url}); return; } catch(e){ if (e?.name === 'AbortError') return; } }
+    try { await navigator.clipboard.writeText(url); toast('已複製連結，可以貼到 LINE'); }
+    catch(e){ openModal('app 連結', `<p class="hint">長按下面的連結複製：</p><p style="word-break:break-all;user-select:all;font-weight:700">${esc(url)}</p>`); }
+  }
+};
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]'); if (!el) return;
+  const fn = A[el.dataset.act]; if (!fn) return;
+  if (el.tagName !== 'A' || el.dataset.act !== 'pool-date') {}
+  if (el.tagName === 'A' && el.dataset.act === 'pool-date') ev.preventDefault();
+  fn(el.dataset, ev);
+});
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('#modal').hidden) closeModal(); });
+
+function route(){ const h = location.hash.slice(1); S.tab = TABS.some(t => t[0] === h) ? h : 'trip'; render(); window.scrollTo(0,0); }
+window.addEventListener('hashchange', route);
+route();
+
+/* ---------- data ---------- */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; render(); });
+function boot(){
+  S.api = String((window.TRIP_CONFIG && window.TRIP_CONFIG.apiUrl) || '').trim();
+  S.meId = LS.get('trip-me', null); S.ai = LS.get('trip-ai', false);
+  if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(S.api)){ S.status = 'noapi'; render(); return; }
+  recompute();
+  sync();
+  setInterval(() => { if (document.visibilityState === 'visible') sync(); }, 20000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sync(); });
+  window.addEventListener('online', () => sync());
+}
+boot();
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+})();
+</script>
+</body></html>
