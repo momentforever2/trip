@@ -205,6 +205,11 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:500;color:var(--acce
 .mrow label{font-size:13px;display:flex;gap:4px;align-items:center;white-space:nowrap}
 .pick{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
 .pick:first-child{border-top:0}
+.pick2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pickbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:116px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:15px;cursor:pointer}
+.pickbtn .ic{width:30px;height:30px}
+.pickbtn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.pickbtn:active{transform:scale(.98)}
 .drop{border:1.5px dashed var(--line);border-radius:14px;padding:22px 14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;background:var(--surface)}
 .drop .ic{width:30px;height:30px;color:var(--accent)}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-3px}
@@ -249,6 +254,7 @@ const I = {
   gear:'<svg class="ic" viewBox="0 0 24 24"><path d="M4 7h9M18 7h2M4 17h4M13 17h7"/><circle cx="15.5" cy="7" r="2.3"/><circle cx="10.5" cy="17" r="2.3"/></svg>',
   ai:'<svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1-5.1-1.9 5.1-1.9z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg>',
   star:'<svg class="ic" viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;stroke:none"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg>',
+  img:'<svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8.5"/></svg>',
   link:'<svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>'
 };
 const TABS = [['trip','行程',I.cal],['pool','公費',I.wallet],['split','分帳',I.split],['spots','口袋名單',I.pin],['setup','設定',I.gear]];
@@ -804,10 +810,10 @@ function shrinkImage(file){
   return new Promise((ok, bad) => {
     const url = URL.createObjectURL(file), img = new Image();
     img.onload = () => {
-      const max = 1800, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const max = 1400, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
       const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-      ok(c.toDataURL('image/jpeg', 0.82).split(',')[1]);
+      ok(c.toDataURL('image/jpeg', 0.78).split(',')[1]);
     };
     img.onerror = () => { URL.revokeObjectURL(url); bad({code:'bad_image'}); };
     img.src = url;
@@ -815,22 +821,27 @@ function shrinkImage(file){
 }
 function openReceipt(dest){
   openModal('拍收據', `<div class="form">
-    <label class="drop" for="rc-cam">${I.cam}<b>開相機拍收據</b><span class="small muted">日文、英文、中文都可以，會讀出品項並翻成中文</span></label>
+    <p class="hint">日文、英文、中文收據都可以，會讀出品項並翻成中文。</p>
+    <div class="pick2">
+      <label class="pickbtn primary" for="rc-cam">${I.cam}<b>拍照</b></label>
+      <label class="pickbtn" for="rc-file">${I.img}<b>從相簿選</b></label>
+    </div>
     <input id="rc-cam" type="file" accept="image/*" capture="environment" hidden>
-    <label class="btn" for="rc-file" style="width:100%">從相簿選照片</label>
     <input id="rc-file" type="file" accept="image/*" hidden>
     <div id="rc-out"></div></div>`, b => {
     const onPick = async ev => {
       const file = ev.target.files?.[0]; if (!file) return;
       const out = $('#rc-out', b);
       const url = URL.createObjectURL(file);
-      out.innerHTML = `<img class="preview-img" src="${url}" alt="收據照片"><p class="hint" style="text-align:center;margin-top:10px"><span class="spin"></span> 正在讀收據並翻譯，約需 10–30 秒…</p><div style="text-align:center"><button class="btn ghost" id="rc-stop">取消</button></div>`;
+      out.innerHTML = `<img class="preview-img" src="${url}" alt="收據照片"><p class="hint" style="text-align:center;margin-top:10px"><span class="spin"></span> 正在讀收據並翻譯… <span id="rc-sec" class="num">0</span> 秒</p><div style="text-align:center"><button class="btn ghost" id="rc-stop">取消</button></div>`;
       sampleCtl = new AbortController();
       $('#rc-stop', b).onclick = () => sampleCtl?.abort();
+      const t0 = Date.now(), tick = setInterval(() => { const el = $('#rc-sec', b); if (el) el.textContent = Math.round((Date.now()-t0)/1000); else clearInterval(tick); }, 1000);
+      sampleCtl.signal.addEventListener('abort', () => clearInterval(tick));
       try {
         const image = await shrinkImage(file);
         const j = await api({action:'receipt', image, mime:'image/jpeg'}, sampleCtl.signal);
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(url); clearInterval(tick);
         const r = j.result || {};
         const total = Number(r.total) || 0;
         const items = Array.isArray(r.items) ? r.items.slice(0,40).map(i => ({zh:String(i?.zh||''), orig:String(i?.orig||''), price: i?.price==null || i.price==='' ? '' : Number(i.price)||0})) : [];
@@ -839,7 +850,7 @@ function openReceipt(dest){
           category: CATS.includes(r.category) ? r.category : '其他', items, note:String(r.note||''), photo:j.photoUrl || ''};
         sampleCtl = null; closeModal(); openEntry({dest, data, receipt:true});
       } catch(e){
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(url); clearInterval(tick);
         if (e?.name === 'AbortError'){ out.innerHTML = ''; return; }
         out.innerHTML = `<p class="hint err">${esc(sampleErr(e))}</p>`;
       }
