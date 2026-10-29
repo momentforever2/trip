@@ -815,10 +815,12 @@ function shrinkImage(file){
 }
 function openReceipt(dest){
   openModal('拍收據', `<div class="form">
-    <label class="drop" for="rc-file">${I.cam}<b>拍照或選擇收據照片</b><span class="small muted">日文、英文、中文都可以，會讀出品項並翻成中文</span></label>
+    <label class="drop" for="rc-cam">${I.cam}<b>開相機拍收據</b><span class="small muted">日文、英文、中文都可以，會讀出品項並翻成中文</span></label>
+    <input id="rc-cam" type="file" accept="image/*" capture="environment" hidden>
+    <label class="btn" for="rc-file" style="width:100%">從相簿選照片</label>
     <input id="rc-file" type="file" accept="image/*" hidden>
     <div id="rc-out"></div></div>`, b => {
-    $('#rc-file', b).onchange = async ev => {
+    const onPick = async ev => {
       const file = ev.target.files?.[0]; if (!file) return;
       const out = $('#rc-out', b);
       const url = URL.createObjectURL(file);
@@ -842,6 +844,7 @@ function openReceipt(dest){
         out.innerHTML = `<p class="hint err">${esc(sampleErr(e))}</p>`;
       }
     };
+    $('#rc-cam', b).onchange = onPick; $('#rc-file', b).onchange = onPick;
   });
 }
 function openImport(kind){
