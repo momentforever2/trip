@@ -1080,7 +1080,7 @@ const A = {
   'install-hide': () => { LS.set('trip-install-hide', true); render(); },
   install: async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); try { await deferredPrompt.userChoice; } catch(e){} deferredPrompt = null; render(); },
   'share-link': async () => {
-    const url = location.origin + location.pathname, title = (S.meta?.name || '家族旅行');
+    const url = location.origin + location.pathname + '?openExternalBrowser=1', title = (S.meta?.name || '家族旅行');
     if (navigator.share){ try { await navigator.share({title, text:title + '：行程與記帳', url}); return; } catch(e){ if (e?.name === 'AbortError') return; } }
     try { await navigator.clipboard.writeText(url); toast('已複製連結，可以貼到 LINE'); }
     catch(e){ openModal('app 連結', `<p class="hint">長按下面的連結複製：</p><p style="word-break:break-all;user-select:all;font-weight:700">${esc(url)}</p>`); }
