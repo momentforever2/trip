@@ -64,8 +64,8 @@ main .wrap{display:flex;flex-direction:column;gap:14px}
 
 /* bottom nav */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
-nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;text-decoration:none;color:var(--muted);font-size:11.5px;font-weight:500}
+nav.tabs .wrap{display:grid;grid-template-columns:repeat(6,1fr)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;text-decoration:none;color:var(--muted);font-size:11px;font-weight:500;white-space:nowrap}
 nav.tabs a .ic{width:22px;height:22px}
 nav.tabs a[aria-current="page"]{color:var(--accent)}
 nav.tabs a:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:8px}
@@ -167,6 +167,30 @@ nav.tabs a:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;bor
 .seg button{flex:1;border:0;background:transparent;border-radius:8px;padding:7px 8px;font-size:13.5px;cursor:pointer;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:var(--shadow)}
 
+/* wish list */
+.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:560px){.wgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.wcard{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.wimg{display:block;width:100%;aspect-ratio:1/1;border:0;padding:0;background:var(--surface-2);cursor:pointer;position:relative;overflow:hidden}
+.wimg img{width:100%;height:100%;object-fit:cover;display:block}
+.wph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.wph .ic{width:36px;height:36px;opacity:.6}
+.wbody{padding:9px 10px 10px;display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.wbody b{font-size:14.5px;line-height:1.35;overflow-wrap:anywhere}
+.wbody small{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.wfoot{margin-top:auto;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.wcheck{display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer}
+.wcheck input{width:18px;height:18px;accent-color:var(--pos);margin:0}
+.wcard.done .wimg img{opacity:.45}
+.wcard.done b{text-decoration:line-through;color:var(--muted)}
+.wbadge{position:absolute;left:6px;top:6px;background:var(--pos);color:#fff;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:6px}
+.btn.sm{min-height:30px;padding:4px 9px;font-size:12.5px;border-radius:8px}
+.wja{font-size:22px;font-weight:700;line-height:1.35;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.wbig{width:100%;max-height:340px;object-fit:contain;border-radius:12px;background:var(--surface-2);display:block}
+.imgpick{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:center}
+.imgpick .thumb{width:96px;height:96px;border-radius:12px;background:var(--surface-2);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.imgpick .thumb img{width:100%;height:100%;object-fit:cover}
+
 /* spots */
 .spot{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
 .spot:first-child{border-top:0}
@@ -264,9 +288,10 @@ const I = {
   ai:'<svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1-5.1-1.9 5.1-1.9z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg>',
   star:'<svg class="ic" viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;stroke:none"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg>',
   img:'<svg class="ic" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8.5"/></svg>',
+  bag:'<svg class="ic" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>',
   link:'<svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>'
 };
-const TABS = [['trip','行程',I.cal],['pool','公費',I.wallet],['split','分帳',I.split],['spots','口袋名單',I.pin],['setup','設定',I.gear]];
+const TABS = [['trip','行程',I.cal],['pool','公費',I.wallet],['split','分帳',I.split],['wish','必買',I.bag],['spots','口袋名單',I.pin],['setup','設定',I.gear]];
 const TYPES = {sight:['景點','--c1'],food:['美食','--c2'],move:['交通','--c3'],shop:['購物','--c4'],stay:['住宿','--c5'],other:['其他','--c7']};
 const CATS = ['餐飲','交通','門票','購物','藥妝','住宿','其他'];
 const CATC = {'餐飲':'--c2','交通':'--c3','門票':'--c1','購物':'--c4','藥妝':'--c6','住宿':'--c5','其他':'--c7'};
@@ -275,7 +300,7 @@ const DEFAULT_META = {name:'家族日本行',startDate:'',endDate:'',rate:0.21,m
   {id:'me',name:'我',child:false},{id:'hubby',name:'老公',child:false},{id:'sis',name:'小姑',child:false},
   {id:'mom',name:'婆婆',child:false},{id:'kid',name:'女兒',child:true}]};
 
-const S = {status:'loading', meta:null, metaLoaded:false, days:[], pool:[], topups:[], splits:[], spots:[],
+const S = {status:'loading', meta:null, metaLoaded:false, days:[], pool:[], topups:[], splits:[], spots:[], wish:[], wishOwner:null, wishFilter:'all',
   tab:'trip', dayId:null, planSel:{}, poolDate:'all', open:new Set(), spotCat:'all', splitView:'min', splitPerson:'all',
   canWrite:true, ai:false, api:'', meId:null, offline:false};
 
@@ -314,8 +339,8 @@ const LS = {get(k,d){ try { const v = localStorage.getItem(k); return v == null 
   set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }};
 let server = LS.get('trip-server', null);
 let Q = LS.get('trip-queue', []);
-let flushing = false, syncing = false;
-const COLS = ['days','pool','topups','splits','spots'];
+let flushing = false, syncing = false, rev = 0;
+const COLS = ['days','pool','topups','splits','spots','wish'];
 function applyOp(st, op){
   const arr = st[op.col] = st[op.col] || [];
   const i = arr.findIndex(x => x.id === op.id);
@@ -350,6 +375,7 @@ async function flush(){
         toast('有一筆資料存不進去，已略過'); // validation error from server
       }
       Q.shift(); LS.set('trip-queue', Q);
+      server = server || {}; applyOp(server, op); LS.set('trip-server', server); // keep local snapshot in step with what was saved
     }
     S.offline = false;
   } finally { flushing = false; }
@@ -359,17 +385,18 @@ async function sync(){
   try {
     await flush();
     if (Q.length) return;
+    const r0 = rev;
     const r = await fetch(S.api + '?action=all&t=' + Date.now(), {redirect:'follow'});
     const j = await r.json();
     if (!j.ok) throw j;
-    if (Q.length) return; // new local edits arrived while loading; next sync will pick up
+    if (Q.length || rev !== r0){ setTimeout(sync, 500); return; } // edits happened while loading; load again
     server = j.data; S.ai = !!j.ai; S.offline = false;
     LS.set('trip-server', server); LS.set('trip-ai', S.ai);
     recompute();
   } catch(e){ S.offline = true; if (S.status === 'loading'){ S.status = server ? 'ready' : 'error'; } renderChrome(); if (S.status === 'error') render(); }
   finally { syncing = false; }
 }
-function enqueue(op){ Q.push(op); LS.set('trip-queue', Q); recompute(); flush().then(() => { renderChrome(); }); return true; }
+function enqueue(op){ rev++; Q.push(op); LS.set('trip-queue', Q); recompute(); flush().then(() => { renderChrome(); }); return true; }
 async function put(col, id, data){ return enqueue({t:'save', col, id, data:JSON.parse(JSON.stringify(data))}); }
 async function del(col, id){ return enqueue({t:'del', col, id}); }
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -456,7 +483,7 @@ function render(){
   else if (S.metaLoaded && !S.meta) h = renderCreate();
   else {
     if (S.tab === 'trip') h += installCard();
-    h += ({trip:renderTrip,pool:renderPool,split:renderSplit,spots:renderSpots,setup:renderSetup}[S.tab])();
+    h += ({trip:renderTrip,pool:renderPool,split:renderSplit,wish:renderWish,spots:renderSpots,setup:renderSetup}[S.tab])();
   }
   v.innerHTML = h;
 }
@@ -634,6 +661,122 @@ function splitRow(e){
     ${e.note ? `<p class="pre" style="margin:8px 0 0">${esc(e.note)}</p>` : ''}
     ${e.photo ? `<p style="margin:6px 0 0"><a href="${esc(e.photo)}" target="_blank" rel="noopener">${I.cam} 看收據照片</a></p>` : ''}
     ${S.canWrite ? `<div style="text-align:right;margin-top:6px"><button class="btn ghost" data-act="entry-edit" data-col="splits" data-id="${e.id}">${I.edit}編輯</button></div>` : ''}</div>` : ''}`;
+}
+
+/* wish list */
+const wishImg = (w, cls='') => w.image ? `<img src="${esc(w.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" class="${cls}" onerror="this.outerHTML='<div class=&quot;wph&quot;>${I.bag.replace(/"/g,'&quot;')}</div>'">` : `<div class="wph">${I.bag}</div>`;
+const hasInMine = src => S.meId && S.wish.some(w => w.owner === S.meId && (w.id === src.id || w.from === src.id || (src.from && w.id === src.from) || (w.name && w.name === src.name)));
+function renderWish(){
+  const ids = members().map(m => m.id);
+  if (!ids.includes(S.wishOwner)) S.wishOwner = ids.includes(S.meId) ? S.meId : ids[0];
+  const owner = S.wishOwner, mine = owner === S.meId;
+  const all = S.wish.filter(w => w.owner === owner);
+  const list = all.filter(w => S.wishFilter === 'all' || (S.wishFilter === 'todo' ? !w.bought : w.bought))
+    .sort((a,b) => (a.bought?1:0) - (b.bought?1:0) || (a.createdAt||0) - (b.createdAt||0));
+  const done = all.filter(w => w.bought).length;
+  const est = all.reduce((s,w) => s + (Number(w.price)||0) * (Number(w.qty)||1), 0);
+  return `
+  ${!S.meId ? `<section class="card"><b>先選這支手機是誰的</b><p class="hint" style="margin:2px 0 0">選了之後，才能把別人清單裡的東西加到自己的清單。</p>
+    <div class="who">${members().map(x => `<button class="chip" data-act="me-set" data-id="${x.id}">${esc(x.name)}</button>`).join('')}</div></section>` : ''}
+  <div class="chips">${members().map(m => { const n = S.wish.filter(w => w.owner === m.id).length;
+    return `<button class="chip" data-act="wish-owner" data-id="${m.id}" aria-pressed="${owner===m.id}">${esc(m.name)}${m.id===S.meId?'（我）':''} ${n}</button>`; }).join('')}</div>
+  <section class="card">
+    <div class="sec-h"><h2>${esc(mName(owner))}的必買清單</h2><span class="small muted num">已買 ${done}/${all.length}${est ? ' · 約 ' + fJ(est) : ''}</span></div>
+    <p class="hint" style="margin-top:4px">${mine ? '點商品可以看大圖和日文名稱，到店裡直接給店員看。' : '看到喜歡的，按「加到我的」就會出現在你的清單。'}</p>
+    <div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="wish-add">${I.plus}新增到${mine ? '我' : esc(mName(owner))}的清單</button></div>
+  </section>
+  ${all.length ? `<div class="seg" role="group" aria-label="篩選">
+    <button data-act="wish-filter" data-f="all" aria-pressed="${S.wishFilter==='all'}">全部 ${all.length}</button>
+    <button data-act="wish-filter" data-f="todo" aria-pressed="${S.wishFilter==='todo'}">還沒買 ${all.length-done}</button>
+    <button data-act="wish-filter" data-f="done" aria-pressed="${S.wishFilter==='done'}">已買 ${done}</button></div>` : ''}
+  ${list.length ? `<div class="wgrid">${list.map(w => {
+    const inMine = !mine && hasInMine(w);
+    return `<article class="wcard ${w.bought?'done':''}">
+      <button class="wimg" data-act="wish-open" data-id="${w.id}" aria-label="${esc(w.name)}">${wishImg(w)}${w.bought ? '<span class="wbadge">已買</span>' : ''}</button>
+      <div class="wbody"><b>${esc(w.name)}</b>${w.nameJa ? `<small>${esc(w.nameJa)}</small>` : ''}
+        ${w.store || w.price ? `<small class="num">${esc(w.store||'')}${w.store && w.price ? ' · ' : ''}${w.price ? fJ(Number(w.price)) + ((Number(w.qty)||1) > 1 ? ' ×' + w.qty : '') : ''}</small>` : ''}
+        <div class="wfoot">${mine || !S.meId
+          ? `<label class="wcheck"><input type="checkbox" data-act="wish-bought" data-id="${w.id}" ${w.bought?'checked':''}>已買</label>`
+          : `<button class="btn sm ${inMine?'':'primary'}" data-act="wish-copy" data-id="${w.id}" ${inMine?'disabled':''}>${inMine ? '已在我的清單' : I.plus + '加到我的'}</button>`}</div>
+      </div></article>`; }).join('')}</div>`
+  : `<div class="card empty">${all.length ? '這個分類沒有東西' : (mine ? '<h3>清單還是空的</h3><p>按「新增」加入想買的東西，可以拍照或從相簿選商品圖片。</p>' : `<h3>${esc(mName(owner))}還沒有加東西</h3><p>也可以幫${esc(mName(owner))}新增。</p>`)}</div>`}`;
+}
+async function copyWish(src){
+  if (!S.meId){ toast('請先選這支手機是誰的'); return; }
+  if (hasInMine(src)){ toast('已經在你的清單了'); return; }
+  const {id, owner, bought, createdAt, updatedAt, ...rest} = src;
+  await put('wish', newId(), {...rest, owner:S.meId, bought:false, from:src.id, createdAt:Date.now()});
+  toast('已加到' + mName(S.meId) + '的清單');
+}
+function openWishView(w){
+  const mine = w.owner === S.meId, inMine = !mine && hasInMine(w);
+  const q = encodeURIComponent(w.nameJa || w.name);
+  openModal(w.name, `<div class="form">
+    ${w.image ? `<img class="wbig" src="${esc(w.image)}" alt="" referrerpolicy="no-referrer">` : ''}
+    ${w.nameJa ? `<div><span class="small muted">給店員看</span><div class="wja">${esc(w.nameJa)}</div></div>` : ''}
+    <div class="list">
+      <div class="row" style="cursor:default"><div class="grow">清單</div><b>${esc(mName(w.owner))}</b></div>
+      ${w.store ? `<div class="row" style="cursor:default"><div class="grow">哪裡買</div><b>${esc(w.store)}</b></div>` : ''}
+      ${w.price ? `<div class="row" style="cursor:default"><div class="grow">參考價格</div><b class="num">${fJ(Number(w.price))}${(Number(w.qty)||1) > 1 ? ' × ' + w.qty : ''}</b></div>` : ''}
+    </div>
+    ${w.note ? `<p class="pre" style="margin:0">${esc(w.note)}</p>` : ''}
+    <a class="small" href="https://www.google.com/search?tbm=isch&q=${q}" target="_blank" rel="noopener">${I.link} 在 Google 搜尋圖片</a>
+    <div class="actions">
+      <button type="button" class="btn" id="wv-edit">${I.edit}編輯</button>
+      ${!mine ? `<button type="button" class="btn primary" id="wv-copy" ${inMine?'disabled':''}>${inMine ? '已在我的清單' : I.plus + '加到我的清單'}</button>`
+              : `<button type="button" class="btn primary" id="wv-bought">${w.bought ? '改成還沒買' : '標記已買'}</button>`}
+    </div></div>`, b => {
+    $('#wv-edit', b).onclick = () => { closeModal(); openWish(w); };
+    const c = $('#wv-copy', b); if (c) c.onclick = async () => { await copyWish(w); closeModal(); };
+    const bt = $('#wv-bought', b); if (bt) bt.onclick = async () => { const {id, ...d} = w; await put('wish', w.id, {...d, bought:!w.bought, updatedAt:Date.now()}); closeModal(); };
+  });
+}
+function openWish(w){
+  const editing = !!w;
+  const d = Object.assign({name:'', nameJa:'', image:'', store:'', price:'', qty:1, note:'', owner:S.wishOwner || S.meId || members()[0]?.id, bought:false}, w ? clone(w) : {});
+  let image = d.image || '';
+  openModal(editing ? '編輯必買' : '新增必買', `<form class="form" id="wf" novalidate>
+    <div class="f"><span>商品圖片</span><div class="imgpick">
+      <div class="thumb" id="wf-thumb">${image ? `<img src="${esc(image)}" alt="" referrerpolicy="no-referrer">` : I.bag}</div>
+      <div class="form" style="gap:6px">
+        <div class="btn-row"><label class="btn sm primary" for="wf-cam">${I.cam}拍照</label><label class="btn sm" for="wf-file">${I.img}相簿</label>
+          <button type="button" class="btn sm ghost" id="wf-clear" ${image?'':'hidden'}>移除</button></div>
+        <input id="wf-url" type="url" placeholder="或貼上圖片網址" style="border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 8px;font-size:14px;min-width:0">
+        <span class="hint" id="wf-imsg"></span>
+      </div></div>
+      <input id="wf-cam" type="file" accept="image/*" capture="environment" hidden><input id="wf-file" type="file" accept="image/*" hidden></div>
+    ${fld('品名', `<input id="wf-name" type="text" value="${esc(d.name)}" placeholder="例如：合利他命 EX Plus">`)}
+    ${fld('日文名稱（給店員看，可空白）', `<input id="wf-ja" type="text" value="${esc(d.nameJa)}" placeholder="例如：アリナミンEXプラス">`)}
+    <div class="row2">${fld('哪裡買', `<input id="wf-store" type="text" value="${esc(d.store)}" placeholder="例如：松本清">`)}${fld('參考價格（日圓）', `<input id="wf-price" type="number" inputmode="decimal" min="0" value="${esc(d.price)}">`)}</div>
+    <div class="row2">${fld('數量', `<input id="wf-qty" type="number" inputmode="numeric" min="1" value="${esc(d.qty)}">`)}${fld('放在誰的清單', memberSel('wf-owner', d.owner))}</div>
+    ${fld('備註', `<textarea id="wf-note" rows="2" placeholder="口味、規格、幫誰買…">${esc(d.note)}</textarea>`)}
+    <p class="hint err" id="wf-err" hidden></p>
+    <div class="actions">${editing ? `<button type="button" class="btn danger" id="wf-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div>
+  </form>`, b => {
+    const thumb = $('#wf-thumb', b), msg = $('#wf-imsg', b), clr = $('#wf-clear', b);
+    const show = () => { thumb.innerHTML = image ? `<img src="${esc(image)}" alt="" referrerpolicy="no-referrer">` : I.bag; clr.hidden = !image; };
+    let uploading = false;
+    const onPick = async ev => {
+      const f = ev.target.files?.[0]; if (!f) return; ev.target.value = '';
+      const local = URL.createObjectURL(f); thumb.innerHTML = `<img src="${local}" alt="">`;
+      uploading = true; msg.innerHTML = '<span class="spin"></span> 上傳圖片中…';
+      try { const j = await api({action:'upload', image: await shrinkImage(f, 900), mime:'image/jpeg'}); image = j.url; msg.textContent = '圖片已上傳'; }
+      catch(e){ msg.textContent = e instanceof TypeError || e?.code === 'network' ? '沒有網路，圖片傳不上去，請稍後再試。' : '圖片上傳失敗（' + (e?.code || '') + '）'; image = d.image || ''; show(); }
+      finally { uploading = false; URL.revokeObjectURL(local); clr.hidden = !image; }
+    };
+    $('#wf-cam', b).onchange = onPick; $('#wf-file', b).onchange = onPick;
+    $('#wf-url', b).onchange = ev => { const u = ev.target.value.trim(); if (/^https?:\/\//.test(u)){ image = u; msg.textContent = ''; show(); } };
+    clr.onclick = () => { image = ''; show(); };
+    if (editing) armDelete($('#wf-del', b), () => del('wish', w.id));
+    $('#wf', b).onsubmit = async ev => { ev.preventDefault();
+      const err = $('#wf-err', b);
+      if (uploading){ err.textContent = '圖片還在上傳，請稍等'; err.hidden = false; return; }
+      const name = $('#wf-name', b).value.trim(); if (!name){ err.textContent = '請填寫品名'; err.hidden = false; return; }
+      const data = {...d, name, nameJa:$('#wf-ja', b).value.trim(), image, store:$('#wf-store', b).value.trim(), price:$('#wf-price', b).value === '' ? '' : Number($('#wf-price', b).value),
+        qty:Math.max(1, Number($('#wf-qty', b).value)||1), owner:$('#wf-owner', b).value, note:$('#wf-note', b).value.trim(), createdAt:d.createdAt || Date.now(), updatedAt:Date.now()};
+      delete data.id;
+      if (await put('wish', editing ? w.id : newId(), data)){ S.wishOwner = data.owner; closeModal(); toast('已儲存'); } };
+  });
 }
 
 /* spots */
@@ -864,11 +1007,11 @@ function openEntry(opt){
 }
 
 /* receipt */
-function shrinkImage(file){
+function shrinkImage(file, maxSide){
   return new Promise((ok, bad) => {
     const url = URL.createObjectURL(file), img = new Image();
     img.onload = () => {
-      const max = 1400, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const max = maxSide || 1400, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
       const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
       ok(c.toDataURL('image/jpeg', 0.78).split(',')[1]);
@@ -1144,6 +1287,12 @@ const A = {
     if (!S.dayId) S.dayId = sortDays()[0]?.id; location.hash = 'trip';
     openItem(null, {type:s.type, title:s.name, area:s.area, note:s.note, link:s.link}); },
   'setup-edit': () => openSetup(),
+  'wish-owner': d => { S.wishOwner = d.id; render(); },
+  'wish-filter': d => { S.wishFilter = d.f; render(); },
+  'wish-add': () => openWish(null),
+  'wish-open': d => { const w = S.wish.find(x => x.id === d.id); if (w) openWishView(w); },
+  'wish-copy': d => { const w = S.wish.find(x => x.id === d.id); if (w) copyWish(w); },
+  'wish-bought': async d => { const w = S.wish.find(x => x.id === d.id); if (!w) return; const {id, ...rest} = w; await put('wish', w.id, {...rest, bought:!w.bought, updatedAt:Date.now()}); },
   resync: () => { S.status = 'loading'; render(); sync(); },
   'me-set': d => { S.meId = d.id; LS.set('trip-me', d.id); render(); toast('已記住：這支手機是' + mName(d.id)); },
   'install-hide': () => { LS.set('trip-install-hide', true); render(); },
