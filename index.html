@@ -192,6 +192,15 @@ nav.tabs a:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;bor
 .chks label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 8px;font-size:14px;cursor:pointer}
 .chks label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700}
 .chks input{accent-color:var(--accent);margin:0}
+.irow{padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.irow .io{color:var(--muted)}
+.wrow{order:7;grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:-2px 0 4px}
+.wrow small{color:var(--muted);font-size:12px;margin-right:2px}
+.wchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer;color:var(--muted)}
+.wchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.irow.need .wrow small{color:var(--warn);font-weight:700}
+.ires{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px}
+.ires b{text-align:right}
 .irow{display:grid;grid-template-columns:1fr 1fr 84px 30px;gap:6px;margin-bottom:6px}
 .irow input{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 8px;font-size:14px;min-width:0}
 details summary{cursor:pointer;font-size:13.5px;font-weight:500;color:var(--accent);padding:4px 0}
@@ -383,7 +392,7 @@ function poolCalc(){
 function shareMap(e){ // TWD per participant
   const amt = toTWD(Number(e.amount)||0, e.currency), parts = e.participants || [], out = {};
   if (!parts.length) return out;
-  if (e.mode === 'custom') parts.forEach(id => out[id] = toTWD(Number(e.shares?.[id])||0, e.currency));
+  if (e.mode === 'custom' || e.mode === 'items') parts.forEach(id => out[id] = toTWD(Number(e.shares?.[id])||0, e.currency));
   else parts.forEach(id => out[id] = amt / parts.length);
   return out;
 }
@@ -614,14 +623,14 @@ function splitRow(e){
     <span class="tag" style="--tc:var(--pos)">還款</span><div class="grow"><div class="t1">${esc(mName(e.from))} 付給 ${esc(mName(e.to))}</div><div class="t2 num">${esc(dLabel(e.date))}${e.note ? ' · ' + esc(e.note) : ''}</div></div>
     <div class="amt num">${fmt(amt,e.currency)}</div></button>`;
   const parts = e.participants || [];
-  const per = e.mode === 'custom' ? '自訂' : '每人 ' + fmt(amt/(parts.length||1), e.currency);
+  const per = e.mode === 'items' ? '依品項分' : e.mode === 'custom' ? '自訂' : '每人 ' + fmt(amt/(parts.length||1), e.currency);
   const open = S.open.has(e.id);
   return `<button class="row" data-act="toggle" data-id="${e.id}" aria-expanded="${open}">
     <div class="grow"><div class="t1">${esc(e.title)}</div><div class="t2 num">${esc(dLabel(e.date))} · ${esc(mName(e.payer))} 先付 · ${per}</div>
     <div class="people">${parts.map(id => `<span>${esc(mName(id))}</span>`).join('')}</div></div>
     <div class="amt num">${fmt(amt,e.currency)}<small>${other(amt,e.currency)}</small></div></button>
-  ${open ? `<div class="detail"><table class="num">${parts.map(id => `<tr><td>${esc(mName(id))}${id===e.payer?' <span class="muted small">（付款人）</span>':''}</td><td>${fmt(e.mode==='custom' ? Number(e.shares?.[id])||0 : amt/(parts.length||1), e.currency)}</td></tr>`).join('')}</table>
-    ${(e.items||[]).length ? `<p class="small muted" style="margin:8px 0 2px">明細</p><table class="num">${e.items.map(it => `<tr><td>${esc(it.zh||it.orig)}${it.orig && it.zh ? `<div class="muted small">${esc(it.orig)}</div>` : ''}</td><td>${it.price!==''&&it.price!=null ? fmt(Number(it.price)||0,e.currency) : ''}</td></tr>`).join('')}</table>` : ''}
+  ${open ? `<div class="detail"><table class="num">${parts.map(id => `<tr><td>${esc(mName(id))}${id===e.payer?' <span class="muted small">（付款人）</span>':''}</td><td>${fmt(e.mode==='custom' || e.mode==='items' ? Number(e.shares?.[id])||0 : amt/(parts.length||1), e.currency)}</td></tr>`).join('')}</table>
+    ${(e.items||[]).length ? `<p class="small muted" style="margin:8px 0 2px">明細</p><table class="num">${e.items.map(it => `<tr><td>${esc(it.zh||it.orig)}${it.orig && it.zh ? `<div class="muted small">${esc(it.orig)}</div>` : ''}${e.mode==='items' ? `<div class="small" style="color:var(--accent)">${(it.who&&it.who.length ? it.who.map(mName) : ['沒指定，大家分']).join('、')}</div>` : ''}</td><td>${it.price!==''&&it.price!=null ? fmt(Number(it.price)||0,e.currency) : ''}</td></tr>`).join('')}</table>` : ''}
     ${e.note ? `<p class="pre" style="margin:8px 0 0">${esc(e.note)}</p>` : ''}
     ${e.photo ? `<p style="margin:6px 0 0"><a href="${esc(e.photo)}" target="_blank" rel="noopener">${I.cam} 看收據照片</a></p>` : ''}
     ${S.canWrite ? `<div style="text-align:right;margin-top:6px"><button class="btn ghost" data-act="entry-edit" data-col="splits" data-id="${e.id}">${I.edit}編輯</button></div>` : ''}</div>` : ''}`;
@@ -736,29 +745,48 @@ function openEntry(opt){
     <div class="row2">${fld('日期', `<input id="ef-date" type="date" value="${esc(d.date)}">`)}${fld('分類', `<select id="ef-cat">${CATS.map(c=>`<option ${c===d.category?'selected':''}>${c}</option>`).join('')}</select>`)}</div>
     <div id="ef-split" class="form" ${dest==='split'?'':'hidden'}>
       ${fld('誰先付的', memberSel('ef-payer', d.payer))}
-      <div class="f"><span>分給誰（打勾的人一起分）</span>${memberChecks('ef-p', d.participants)}
+      <div class="seg" role="group" aria-label="分法"><button type="button" data-m="equal" aria-pressed="${d.mode==='equal'||!d.mode}">平均分</button><button type="button" data-m="items" aria-pressed="${d.mode==='items'}">依品項分</button><button type="button" data-m="custom" aria-pressed="${d.mode==='custom'}">自訂金額</button></div>
+      <div class="f"><span id="ef-plabel">分給誰（打勾的人一起分）</span>${memberChecks('ef-p', d.participants)}
         <div class="btn-row" style="margin-top:4px"><button type="button" class="btn ghost" data-pre="adults">大人 ${ad.length} 位</button><button type="button" class="btn ghost" data-pre="all">全部 ${members().length} 位</button><button type="button" class="btn ghost" data-pre="none">清除</button></div></div>
-      <div class="seg" role="group" aria-label="分法"><button type="button" data-m="equal" aria-pressed="${d.mode!=='custom'}">平均分</button><button type="button" data-m="custom" aria-pressed="${d.mode==='custom'}">各自金額不同</button></div>
       <div id="ef-custom" class="form" ${d.mode==='custom'?'':'hidden'}></div>
       <p class="hint num" id="ef-share"></p>
     </div>
-    <details ${d.items.length?'open':''}><summary>明細品項（<span id="ef-icount">${d.items.length}</span>）</summary>
-      <div id="ef-items" style="margin-top:6px"></div><button type="button" class="btn ghost" id="ef-additem">${I.plus}加一項</button></details>
+    <details id="ef-det" ${d.items.length||d.mode==='items'?'open':''}><summary>明細品項（<span id="ef-icount">${d.items.length}</span>）</summary>
+      <p class="hint" id="ef-ihint" hidden style="margin:4px 0 8px">在每個品項下面點選是誰的。點兩個人以上就由他們平分；沒點的品項（例如稅金、袋子）由上面打勾的人平分。</p>
+      <div id="ef-items" style="margin-top:6px"></div><button type="button" class="btn ghost" id="ef-additem">${I.plus}加一項</button>
+      <div class="detail" id="ef-ires" hidden style="margin-top:8px"></div></details>
     ${fld('備註', `<textarea id="ef-note" rows="2">${esc(d.note)}</textarea>`)}
     <p class="hint err" id="ef-err" hidden></p>
     <div class="actions">${editing ? `<button type="button" class="btn danger" id="ef-del">刪除</button>` : ''}<button class="btn primary" type="submit">儲存</button></div>
   </form>`;
   openModal(editing ? '編輯紀錄' : (opt.receipt ? '收據內容確認' : '記一筆'), html, b => {
-    let mode = d.mode === 'custom' ? 'custom' : 'equal';
+    let mode = ['custom','items'].includes(d.mode) ? d.mode : 'equal';
     const shares = Object.assign({}, d.shares);
     const parts = () => $$('input[name=ef-p]:checked', b).map(x => x.value);
     const itemsBox = $('#ef-items', b);
     const addItem = (it={}) => { const r = document.createElement('div'); r.className = 'irow';
-      r.innerHTML = `<input class="iz" placeholder="中文品名" value="${esc(it.zh||'')}"><input class="io" placeholder="原文" value="${esc(it.orig||'')}"><input class="ip num" type="number" step="any" inputmode="decimal" placeholder="金額" value="${esc(it.price??'')}"><button type="button" class="icon-btn" aria-label="移除">${I.x}</button>`;
-      $('button', r).onclick = () => { r.remove(); $('#ef-icount', b).textContent = $$('.irow', itemsBox).length; };
+      const who = new Set(Array.isArray(it.who) ? it.who : []);
+      r.innerHTML = `<input class="iz" placeholder="中文品名" value="${esc(it.zh||'')}"><input class="io" placeholder="原文" value="${esc(it.orig||'')}"><input class="ip num" type="number" step="any" inputmode="decimal" placeholder="金額" value="${esc(it.price??'')}"><button type="button" class="icon-btn" aria-label="移除">${I.x}</button>
+        <div class="wrow" ${mode==='items'?'':'hidden'}><small>誰的：</small>${members().map(m => `<button type="button" class="wchip" data-w="${m.id}" aria-pressed="${who.has(m.id)}">${esc(m.name)}</button>`).join('')}</div>`;
+      r._who = who;
+      $('.icon-btn', r).onclick = () => { r.remove(); $('#ef-icount', b).textContent = $$('.irow', itemsBox).length; updShare(); };
+      $$('.wchip', r).forEach(c => c.onclick = () => { const id = c.dataset.w; who.has(id) ? who.delete(id) : who.add(id); c.setAttribute('aria-pressed', who.has(id)); updShare(); });
+      $('.ip', r).oninput = () => updShare();
       itemsBox.append(r); $('#ef-icount', b).textContent = $$('.irow', itemsBox).length; };
     d.items.forEach(addItem);
-    $('#ef-additem', b).onclick = () => addItem();
+    $('#ef-additem', b).onclick = () => { addItem(); updShare(); };
+    const readItems = () => $$('.irow', itemsBox).map(r => ({r, price:Number($('.ip',r).value)||0, who:[...r._who]}));
+    const itemShares = () => { // returns {shares, base, itemsSum, unassigned}
+      const p = parts(), base = {}; let itemsSum = 0, unassigned = 0;
+      readItems().forEach(it => {
+        if (!it.price) return; itemsSum += it.price;
+        const who = it.who.length ? it.who : p; if (!it.who.length) unassigned++;
+        who.forEach(id => base[id] = (base[id]||0) + it.price / (who.length||1));
+      });
+      const amt = Number($('#ef-amt', b).value) || itemsSum, k = itemsSum ? amt / itemsSum : 0, shares = {};
+      Object.keys(base).forEach(id => { if (base[id] > 0) shares[id] = base[id] * k; });
+      return {shares, base, itemsSum, amt, unassigned};
+    };
     const drawCustom = () => {
       const box = $('#ef-custom', b);
       box.innerHTML = parts().map(id => `<div class="row2" style="align-items:center"><span>${esc(mName(id))}</span><input type="number" step="any" inputmode="decimal" data-sh="${id}" value="${esc(shares[id] ?? '')}" style="border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px;font-size:16px;min-width:0"></div>`).join('');
@@ -766,13 +794,34 @@ function openEntry(opt){
     };
     const updShare = () => {
       const amt = Number($('#ef-amt', b).value)||0, cur = $('#ef-cur', b).value, p = parts(), out = $('#ef-share', b);
+      const res = $('#ef-ires', b); res.hidden = mode !== 'items' || dest !== 'split';
+      if (mode === 'items' && dest === 'split'){
+        $$('.irow', itemsBox).forEach(r => r.classList.toggle('need', !r._who.size));
+        const {shares, itemsSum, amt: total, unassigned} = itemShares();
+        if (!itemsSum){ out.textContent = '請在下方明細加入品項和金額，再點選每項是誰的。'; res.innerHTML = '<span class="muted">還沒有品項金額</span>'; return; }
+        const diff = total - itemsSum;
+        const ids = members().map(m => m.id).filter(id => shares[id]);
+        res.innerHTML = `<b style="display:block;text-align:left;margin-bottom:6px">每個人要負擔</b><div class="ires num">${ids.map(id => `<span>${esc(mName(id))}</span><b>${fmt(shares[id],cur)}</b>`).join('')}<span class="muted">合計</span><b>${fmt(total,cur)}</b></div>`
+          + (Math.abs(diff) >= 1 ? `<p class="hint" style="margin-top:6px">收據總額比品項加總${diff>0?'多':'少'} ${fmt(Math.abs(diff),cur)}（${diff>0?'稅金或服務費':'折扣'}），已依每人品項金額比例${diff>0?'分攤':'扣除'}。</p>` : '')
+          + (unassigned ? `<p class="hint" style="margin-top:6px">有 ${unassigned} 項沒指定，由上面打勾的 ${p.length} 人平分${p.length ? '' : '（目前沒人打勾，請勾選）'}。</p>` : '');
+        out.textContent = `依品項分：${ids.length} 人負擔，詳見下方明細的計算結果`;
+        return;
+      }
       if (!p.length){ out.textContent = '請至少勾選一位'; return; }
       if (mode === 'equal') out.textContent = `${p.length} 人平均，每人 ${fmt(amt/p.length,cur)}（${other(amt/p.length,cur)}）`;
       else { const sum = p.reduce((s,id)=>s+(Number(shares[id])||0),0), left = amt - sum;
         out.textContent = Math.abs(left) < 0.5 ? `已分配完 ${fmt(sum,cur)}` : `已分配 ${fmt(sum,cur)}，${left>0?'還差':'超過'} ${fmt(Math.abs(left),cur)}`; }
     };
     $$('[data-d]', b).forEach(x => x.onclick = () => { dest = x.dataset.d; $$('[data-d]', b).forEach(y => y.setAttribute('aria-pressed', y===x)); $('#ef-split', b).hidden = dest !== 'split'; updShare(); });
-    $$('[data-m]', b).forEach(x => x.onclick = () => { mode = x.dataset.m; $$('[data-m]', b).forEach(y => y.setAttribute('aria-pressed', y===x)); $('#ef-custom', b).hidden = mode !== 'custom'; drawCustom(); updShare(); });
+    const applyMode = () => {
+      $('#ef-custom', b).hidden = mode !== 'custom';
+      $$('.wrow', itemsBox).forEach(w => w.hidden = mode !== 'items');
+      $('#ef-ihint', b).hidden = mode !== 'items';
+      $('#ef-plabel', b).textContent = mode === 'items' ? '沒指定的品項（稅金、袋子等）由誰平分' : '分給誰（打勾的人一起分）';
+      if (mode === 'items'){ $('#ef-det', b).open = true; if (!$$('.irow', itemsBox).length) addItem(); }
+    };
+    $$('[data-m]', b).forEach(x => x.onclick = () => { mode = x.dataset.m; $$('[data-m]', b).forEach(y => y.setAttribute('aria-pressed', y===x)); applyMode(); drawCustom(); updShare(); });
+    applyMode();
     $$('[data-pre]', b).forEach(x => x.onclick = () => { const v = x.dataset.pre; $$('input[name=ef-p]', b).forEach(c => c.checked = v==='all' || (v==='adults' && ad.includes(c.value))); drawCustom(); updShare(); });
     $$('input[name=ef-p]', b).forEach(c => c.onchange = () => { drawCustom(); updShare(); });
     $('#ef-amt', b).oninput = updShare; $('#ef-cur', b).onchange = updShare;
@@ -782,15 +831,24 @@ function openEntry(opt){
       ev.preventDefault();
       const err = $('#ef-err', b); err.hidden = true;
       const fail = msg => { err.textContent = msg; err.hidden = false; };
-      const title = $('#ef-title', b).value.trim(), amount = Number($('#ef-amt', b).value);
+      const title = $('#ef-title', b).value.trim();
+      if (dest === 'split' && mode === 'items' && !Number($('#ef-amt', b).value)) $('#ef-amt', b).value = Math.round(itemShares().itemsSum * 100) / 100;
+      const amount = Number($('#ef-amt', b).value);
       if (!title) return fail('請填寫項目名稱');
       if (!(amount > 0)) return fail('請填寫金額');
-      const items = $$('.irow', itemsBox).map(r => ({zh:$('.iz',r).value.trim(), orig:$('.io',r).value.trim(), price:$('.ip',r).value === '' ? '' : Number($('.ip',r).value)})).filter(i => i.zh || i.orig);
+      const items = $$('.irow', itemsBox).map(r => ({zh:$('.iz',r).value.trim(), orig:$('.io',r).value.trim(), price:$('.ip',r).value === '' ? '' : Number($('.ip',r).value), ...(r._who.size ? {who:[...r._who]} : {})})).filter(i => i.zh || i.orig || i.price);
       const data = {title, orig:$('#ef-orig', b).value.trim(), amount, currency:$('#ef-cur', b).value, date:$('#ef-date', b).value, category:$('#ef-cat', b).value,
         items, note:$('#ef-note', b).value.trim(), photo:d.photo || '', createdAt:d.createdAt || Date.now(), updatedAt:Date.now()};
       if (dest === 'split'){
-        const p = parts(); if (!p.length) return fail('請勾選要一起分攤的人');
-        Object.assign(data, {kind:'expense', payer:$('#ef-payer', b).value, participants:p, mode});
+        if (mode === 'items'){
+          const {shares, itemsSum, unassigned} = itemShares();
+          if (!itemsSum) return fail('請先加入品項和金額');
+          if (unassigned && !parts().length) return fail('有品項沒指定是誰的，請點選，或在上面勾選要平分的人');
+          const sh = {}; Object.keys(shares).forEach(id => sh[id] = Math.round(shares[id] * 100) / 100);
+          Object.assign(data, {kind:'expense', payer:$('#ef-payer', b).value, participants:Object.keys(sh), mode, shares:sh});
+        }
+        const p = mode === 'items' ? data.participants : parts(); if (!p.length) return fail('請勾選要一起分攤的人');
+        if (mode !== 'items') Object.assign(data, {kind:'expense', payer:$('#ef-payer', b).value, participants:p, mode});
         if (mode === 'custom'){ const sh = {}; p.forEach(id => sh[id] = Number(shares[id])||0);
           const sum = Object.values(sh).reduce((a,c)=>a+c,0); if (Math.abs(sum-amount) >= 1) return fail(`各自金額加總（${fmt(sum,data.currency)}）和總金額不一樣`); data.shares = sh; }
       }
