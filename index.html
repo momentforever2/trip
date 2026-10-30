@@ -760,24 +760,27 @@ function openWish(w){
       const f = ev.target.files?.[0]; if (!f) return; ev.target.value = '';
       const local = URL.createObjectURL(f); thumb.innerHTML = `<img src="${local}" alt="">`;
       uploading = true;
-      const t0 = Date.now(); const label = S.ai ? '上傳並辨識商品中…' : '上傳圖片中…';
-      msg.innerHTML = `<span class="spin"></span> ${label}`;
-      const tick = setInterval(() => { if (!msg.isConnected) return clearInterval(tick); msg.innerHTML = `<span class="spin"></span> ${label} ${Math.round((Date.now()-t0)/1000)} 秒`; }, 1000);
+      const t0 = Date.now();
+      let upMsg = '上傳圖片中', aiMsg = S.ai ? '辨識商品中' : '';
+      const paint = () => { const sec = Math.round((Date.now()-t0)/1000); msg.innerHTML = (uploading || aiMsg.endsWith('中')) ? `<span class="spin"></span> ${[upMsg, aiMsg].filter(Boolean).join('、')}… ${sec} 秒` : [upMsg, aiMsg].filter(Boolean).join('。'); };
+      const tick = setInterval(() => { if (!msg.isConnected) return clearInterval(tick); paint(); }, 1000); paint();
       try {
-        const j = await api({action:'upload', image: await shrinkImage(f, 1000), mime:'image/jpeg', analyze: S.ai});
-        image = j.url;
-        const info = j.info;
-        if (info){
-          let n = 0;
+        const big = await shrinkImage(f, 1000);
+        const small = S.ai ? await shrinkImage(f, 768) : null;
+        // 上傳照片和辨識商品同時進行
+        const up = api({action:'upload', image: big, mime:'image/jpeg'}).then(j => { image = j.url; upMsg = '圖片已上傳'; })
+          .catch(e => { upMsg = e instanceof TypeError || e?.code === 'network' ? '沒有網路，圖片傳不上去' : '圖片上傳失敗'; image = d.image || ''; })
+          .finally(() => { uploading = false; clr.hidden = !image; if (!image) show(); paint(); });
+        const ai = !small ? Promise.resolve() : api({action:'analyze', image: small, mime:'image/jpeg'}).then(j => {
+          const info = j.info || {}; let n = 0;
           const fill = (sel, v) => { const el = $(sel, b); if (el && v && !String(el.value).trim()){ el.value = v; n++; } };
           fill('#wf-name', info.name); fill('#wf-ja', info.nameJa); fill('#wf-store', info.store);
           if (Number(info.price) > 0) fill('#wf-price', String(Math.round(Number(info.price))));
           fill('#wf-note', [info.brand ? '品牌：' + info.brand : '', info.note || ''].filter(Boolean).join('\n'));
-          msg.textContent = n ? `已辨識並自動填入 ${n} 欄，請確認，有錯可以直接改。` : '已辨識，欄位原本就有內容，沒有覆蓋。';
-        } else msg.textContent = j.aiError ? '圖片已上傳，但商品辨識失敗，請手動填寫。' : '圖片已上傳';
-      }
-      catch(e){ msg.textContent = e instanceof TypeError || e?.code === 'network' ? '沒有網路，圖片傳不上去，請稍後再試。' : '圖片上傳失敗（' + (e?.code || '') + '）'; image = d.image || ''; show(); }
-      finally { clearInterval(tick); uploading = false; URL.revokeObjectURL(local); clr.hidden = !image; }
+          aiMsg = n ? `已自動填入 ${n} 欄（${Math.round((Date.now()-t0)/1000)} 秒），有錯可以直接改` : '已辨識，原本有內容的欄位沒有覆蓋';
+        }).catch(() => { aiMsg = '商品辨識失敗，請手動填寫'; }).finally(paint);
+        await Promise.all([up, ai]);
+      } finally { clearInterval(tick); URL.revokeObjectURL(local); paint(); }
     };
     $('#wf-cam', b).onchange = onPick; $('#wf-file', b).onchange = onPick;
     $('#wf-url', b).onchange = ev => { const u = ev.target.value.trim(); if (/^https?:\/\//.test(u)){ image = u; msg.textContent = ''; show(); } };
@@ -1056,7 +1059,9 @@ function openReceipt(dest){
       sampleCtl.signal.addEventListener('abort', () => clearInterval(tick));
       try {
         const image = await shrinkImage(file);
-        const j = await api({action:'receipt', image, mime:'image/jpeg'}, sampleCtl.signal);
+        const photoP = api({action:'upload', folder:'receipt', image, mime:'image/jpeg'}).then(r => r.url).catch(() => '');
+        const j = await api({action:'receipt', image, mime:'image/jpeg', save:false}, sampleCtl.signal);
+        j.photoUrl = await Promise.race([photoP, new Promise(r => setTimeout(() => r(''), 8000))]);
         URL.revokeObjectURL(url); clearInterval(tick);
         const r = j.result || {};
         const total = Number(r.total) || 0;
