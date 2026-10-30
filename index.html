@@ -745,7 +745,7 @@ function openEntry(opt){
     <div class="row2">${fld('日期', `<input id="ef-date" type="date" value="${esc(d.date)}">`)}${fld('分類', `<select id="ef-cat">${CATS.map(c=>`<option ${c===d.category?'selected':''}>${c}</option>`).join('')}</select>`)}</div>
     <div id="ef-split" class="form" ${dest==='split'?'':'hidden'}>
       ${fld('誰先付的', memberSel('ef-payer', d.payer))}
-      <div class="seg" role="group" aria-label="分法"><button type="button" data-m="equal" aria-pressed="${d.mode==='equal'||!d.mode}">平均分</button><button type="button" data-m="items" aria-pressed="${d.mode==='items'}">依品項分</button><button type="button" data-m="custom" aria-pressed="${d.mode==='custom'}">自訂金額</button></div>
+      <div class="seg" role="group" aria-label="分法"><button type="button" data-m="equal" aria-pressed="${d.mode==='equal'||!d.mode}">平均分</button><button type="button" data-m="items" aria-pressed="${d.mode==='items'}">依品項分</button>${d.mode==='custom' ? `<button type="button" data-m="custom" aria-pressed="true">自訂金額</button>` : ''}</div>
       <div class="f"><span id="ef-plabel">分給誰（打勾的人一起分）</span>${memberChecks('ef-p', d.participants)}
         <div class="btn-row" style="margin-top:4px"><button type="button" class="btn ghost" data-pre="adults">大人 ${ad.length} 位</button><button type="button" class="btn ghost" data-pre="all">全部 ${members().length} 位</button><button type="button" class="btn ghost" data-pre="none">清除</button></div></div>
       <div id="ef-custom" class="form" ${d.mode==='custom'?'':'hidden'}></div>
